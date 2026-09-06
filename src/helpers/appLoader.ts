@@ -14,11 +14,12 @@
  *    `tsconfig.json` in the context directory (see helpers/bootstrap) is what
  *    makes them work there.
  *
- *  - **`@lab34/flows` itself.** An application imports the package that runs
+ *  - **`ronsel` itself.** An application imports the package that runs
  *    it. Node would look for it in the `node_modules` folders above the
  *    *context* directory, where nothing is installed, so the import fails for
- *    every user of the published CLI. Both the scoped name and the legacy
- *    `lab34-flows` are answered with this process's own exports, which also
+ *    every user of the published CLI. The package name and the names it
+ *    was published under before (`@lab34/flows`, `lab34-flows`) are all
+ *    answered with this process's own exports, which also
  *    guarantees an application shares its module instances -- the applications
  *    registry, the mimic servers -- instead of driving a second, independent
  *    copy of them.
@@ -49,7 +50,7 @@ const loader = Module as unknown as {
 const PACKAGE_ROOT = path.resolve(__dirname, '..', '..');
 
 /** What an application may import to reach this package. */
-const PACKAGE_NAMES = ['@lab34/flows', 'lab34-flows'];
+const PACKAGE_NAMES = ['ronsel', '@lab34/flows', 'lab34-flows'];
 
 /**
  * Extensions an application source file may use, in the order they are looked
@@ -97,7 +98,7 @@ const flows = () => {
 
 /**
  * What an import of this package should become: the exports already running,
- * or -- for a subpath such as `@lab34/flows/helpers/httpClient` -- a path
+ * or -- for a subpath such as `ronsel/helpers/httpClient` -- a path
  * inside the installation, to be loaded normally.
  * @param {string} request
  * @returns {{value: unknown}|{request: string}|null} null to leave it alone

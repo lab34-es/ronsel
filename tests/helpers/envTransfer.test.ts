@@ -108,7 +108,7 @@ describe('exportSelection', () => {
     });
 
     expect(summary).toEqual({ applications: 2, environments: 2, variables: 2 });
-    expect(yaml).toMatch(/^# Environment variables exported from lab34\/flows\./);
+    expect(yaml).toMatch(/^# Environment variables exported from ronsel\./);
   });
 
   test('a value that looks like a number still reads back as the string it is', async () => {

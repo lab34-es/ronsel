@@ -114,7 +114,7 @@ describe('cli --v and --help', () => {
   test('--help prints the usage and exits', async () => {
     ARGV = { help: true };
     await runCli();
-    expect(logged()).toContain('Lab34 Flows CLI Tool');
+    expect(logged()).toContain('Ronsel CLI Tool');
     expect(logged()).toContain('--server');
     expect(process.exit).toHaveBeenCalledWith(0);
   });
@@ -127,7 +127,7 @@ describe('cli --debug', () => {
 
     const out = logged();
     expect(out).toContain('=== DEBUG INFORMATION ===');
-    expect(out).toContain('Package Name: @lab34/flows');
+    expect(out).toContain('Package Name: ronsel');
     expect(out).toContain('Node Version:');
     expect(out).toContain('Environment Variables:');
     expect(out).toContain('__dirname:');

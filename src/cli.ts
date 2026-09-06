@@ -4,7 +4,7 @@ import * as paths from './helpers/paths';
 import * as applications from './helpers/applications';
 
 /**
- * Lab34 Flows CLI Tool
+ * Ronsel CLI Tool
  * 
  * A command-line interface for running Markdown flow definitions.
  * 
@@ -81,16 +81,16 @@ function exitWithError(message, exitCode = 1) {
  */
 function showHelp() {
   console.log(`
-Lab34 Flows CLI Tool v${packageJson.version}
+Ronsel CLI Tool v${packageJson.version}
 
 Usage:
-  lab34-flows --file <path-to-flow-file> --env <environment> [--debug] [--help]
-  lab34-flows --view <view> --env <environment> [--folder <folder>]
-  lab34-flows --import-env <path-to-yaml> [--view <view> --env <environment>]
-  lab34-flows --server [--context=<context>]
-  lab34-flows --agent --agent-id <name> [--broker <url> --username <user> --password <secret>]
-  lab34-flows --remote <agent> --file <path-to-flow-file> --env <environment>
-  lab34-flows --remote <agent> --view <view> --env <environment>
+  ronsel --file <path-to-flow-file> --env <environment> [--debug] [--help]
+  ronsel --view <view> --env <environment> [--folder <folder>]
+  ronsel --import-env <path-to-yaml> [--view <view> --env <environment>]
+  ronsel --server [--context=<context>]
+  ronsel --agent --agent-id <name> [--broker <url> --username <user> --password <secret>]
+  ronsel --remote <agent> --file <path-to-flow-file> --env <environment>
+  ronsel --remote <agent> --view <view> --env <environment>
 
 Options:
   --file          Path to the flow definition file (.md markdown flow) (required if not using --view or --server)
@@ -131,17 +131,17 @@ Generating flows with AI is done from the web UI (--server): the provider,
 model and API keys are configured there, under Settings.
 
 Examples:
-  lab34-flows --context my/context/folder --file flows/my-flow.md --env production
-  lab34-flows --context my/context/folder --view all-flows --env production
-  lab34-flows --context my/context/folder --view smoke --folder payments --env staging
-  lab34-flows --context my/context/folder --import-env ~/Downloads/env.yaml
-  lab34-flows --context my/context/folder --import-env env.yaml --view smoke --env uat
-  lab34-flows --context my/context/folder --import-env env.yaml --dry-run
-  lab34-flows --context my/context/folder --capabilities
-  lab34-flows --server --context=myproject
-  lab34-flows --context ~/flows-agent --agent --agent-id agent-ourense --broker mqtts://mqtt.example:443 --username agent-ourense --password s3cret
-  lab34-flows --remote agent-ourense --file flows/my-flow.md --env production
-  lab34-flows --remote agent-ourense --view smoke --env uat
+  ronsel --context my/context/folder --file flows/my-flow.md --env production
+  ronsel --context my/context/folder --view all-flows --env production
+  ronsel --context my/context/folder --view smoke --folder payments --env staging
+  ronsel --context my/context/folder --import-env ~/Downloads/env.yaml
+  ronsel --context my/context/folder --import-env env.yaml --view smoke --env uat
+  ronsel --context my/context/folder --import-env env.yaml --dry-run
+  ronsel --context my/context/folder --capabilities
+  ronsel --server --context=myproject
+  ronsel --context ~/flows-agent --agent --agent-id agent-ourense --broker mqtts://mqtt.example:443 --username agent-ourense --password s3cret
+  ronsel --remote agent-ourense --file flows/my-flow.md --env production
+  ronsel --remote agent-ourense --view smoke --env uat
   `);
   process.exit(0);
 }
@@ -567,7 +567,7 @@ async function main() {
   if (args.ai) {
     exitWithError(
       'Generating flows with AI is no longer available from the CLI. ' +
-      'Start the UI with "lab34-flows --server" and use the "Create using AI" ' +
+      'Start the UI with "ronsel --server" and use the "Create using AI" ' +
       'option when creating a flow.'
     );
   } else if (args.capabilities) {

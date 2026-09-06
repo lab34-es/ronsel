@@ -2,7 +2,7 @@ import pg from 'pg';
 import type { ConnectionOptions as TlsConnectionOptions } from 'node:tls';
 import createDebug from 'debug';
 
-const debug = createDebug('lab34:flows:helpers:pgClient');
+const debug = createDebug('ronsel:helpers:pgClient');
 
 /**
  * Executes a query on a PostgreSQL database.

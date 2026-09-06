@@ -4,7 +4,7 @@ Guidance for Claude Code when working in this repository.
 
 ## What this is
 
-`@lab34/flows` — a CLI and web UI for running E2E flows written as Markdown
+`ronsel` — a CLI and web UI for running E2E flows written as Markdown
 documents. Three package trees, each with its own `package.json`:
 
 | Tree | What it is | Ships to npm? |
@@ -30,8 +30,8 @@ because they are never written separately.
 
 Everything that shows a version still reads it from the root `package.json`:
 
-- `lab34-flows --version` (and `-v`) — `src/cli.ts`
-- the banner in `lab34-flows --help` and the CLI logo on every run
+- `ronsel --version` (and `-v`) — `src/cli.ts`
+- the banner in `ronsel --help` and the CLI logo on every run
 - the web UI sidebar title — baked into the bundle by `define` in
   `frontend/vite.config.ts`, which reads `../package.json`
 - the git tag: `v<version>`, exactly
@@ -66,8 +66,8 @@ published. Do not bump it; release-please does not touch it either.
 4. **Check it landed.**
 
    ```bash
-   npm view @lab34/flows version
-   npx -y @lab34/flows@1.6.0 --version
+   npm view ronsel version
+   npx -y ronsel@<version> --version
    ```
 
 The `release` job needs one repository setting that is easy to miss:

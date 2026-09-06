@@ -5,8 +5,8 @@
  * package, so these are the contract between the two: what the runner hands a
  * method, and what it expects back.
  *
- *   import { applications, httpClient } from '@lab34/flows';
- *   import type { Context, Parameters, Flow, MethodResult } from '@lab34/flows';
+ *   import { applications, httpClient } from 'ronsel';
+ *   import type { Context, Parameters, Flow, MethodResult } from 'ronsel';
  *
  *   export const search = applications.handler([
  *     (ctx: Context, parameters: Parameters, flow: Flow): MethodResult =>

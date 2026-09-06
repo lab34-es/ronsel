@@ -3,7 +3,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ---------------------------------------------------------------------------
-   lab34/flows — editorial theme.
+   ronsel — editorial theme.
    Bone ground, ink type, a single brass accent applied as stroke: borders,
    rules and underlines, never as a fill. IBM Plex Sans for prose, IBM Plex
    Mono for anything that is machinery — kickers, paths, code, metadata.
@@ -1317,6 +1317,27 @@ code {
   padding: 0.6rem 1rem 0.6rem 0;
   vertical-align: top;
 }
+/* A screenshot of the tool inside an article: the capture of the current theme */
+.fl-doc-shot {
+  display: block;
+  margin: 22px 0;
+}
+.fl-doc-shot img {
+  width: 100%;
+}
+.fl-doc-shot .fl-shot-light {
+  display: block;
+}
+.fl-doc-shot .fl-shot-dark {
+  display: none;
+}
+.dark .fl-doc-shot .fl-shot-light {
+  display: none;
+}
+.dark .fl-doc-shot .fl-shot-dark {
+  display: block;
+}
+
 .fl-prose img {
   max-width: 100%;
   height: auto;

@@ -15,7 +15,7 @@ module.exports = tseslint.config(
       '.claude/**',
       '*.min.js',
       // Templates copied into the user's context directory: they import
-      // 'lab34-flows', which only resolves once they have been seeded.
+      // 'ronsel', which only resolves once they have been seeded.
       'src/defaults/**'
     ]
   },

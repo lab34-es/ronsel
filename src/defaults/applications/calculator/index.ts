@@ -3,8 +3,8 @@
  * access, and to learn how flow memory works: every operation writes its
  * result to `memory.lastResult`, so later steps can reuse it.
  */
-import { applications } from '@lab34/flows';
-import type { Context, Parameters } from '@lab34/flows';
+import { applications } from 'ronsel';
+import type { Context, Parameters } from 'ronsel';
 
 const toNumber = (value, name) => {
   const num = typeof value === 'number' ? value : parseFloat(value);

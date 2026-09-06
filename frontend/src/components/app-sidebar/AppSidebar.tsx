@@ -106,13 +106,10 @@ export function AppSidebar() {
                 <Workflow className="size-4" />
               </div>
               <div className="grid flex-1 text-left leading-tight">
-                {/* The open-source lockup: parent Medium 500, brass slash,
-                    project Regular 400, all lowercase. */}
+                {/* The name: Medium 500, all lowercase. */}
                 <span className="flex items-baseline gap-1.5 truncate font-mono text-sm tracking-[-0.04em]">
                   <span className="truncate">
-                    <span className="font-medium">lab34</span>
-                    <span className="text-brass">/</span>
-                    <span className="font-normal">flows</span>
+                    <span className="font-medium">ronsel</span>
                   </span>
                   {/* Which release this is, baked in at build time from the
                       package's version (see `define` in vite.config.ts). */}

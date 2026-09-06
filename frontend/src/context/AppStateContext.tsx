@@ -6,9 +6,9 @@ import { indexChanges, scopedStatus } from '@/lib/git';
 
 const AppStateContext = createContext<any>(null);
 
-const ENV_STORAGE_KEY = 'lab34-flows:environment';
+const ENV_STORAGE_KEY = 'ronsel:environment';
 // '' is this machine; otherwise the name of the agent runs are sent to
-const AGENT_STORAGE_KEY = 'lab34-flows:agent';
+const AGENT_STORAGE_KEY = 'ronsel:agent';
 
 // Git state goes stale on its own -- a pull in a terminal, a file written by
 // another tool -- so it is re-read on a timer as well as after our own writes.

@@ -24,6 +24,7 @@ module.exports = {
   // jest's own resolver does not go through, so the same alias is declared
   // here. Tests therefore exercise src, not a possibly stale dist.
   moduleNameMapper: {
+    '^ronsel$': '<rootDir>/src/index.ts',
     '^@lab34/flows$': '<rootDir>/src/index.ts',
     '^lab34-flows$': '<rootDir>/src/index.ts'
   },

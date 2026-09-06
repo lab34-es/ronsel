@@ -87,7 +87,7 @@ describe('appLoader.load', () => {
 
   test('answers an import of the package with this process\'s own exports', () => {
     const file = write('index.ts', [
-      "import { applications, httpClient } from '@lab34/flows';",
+      "import { applications, httpClient } from 'ronsel';",
       'export const same = applications.handler === undefined ? null : { applications, httpClient };'
     ].join('\n'));
 
@@ -95,14 +95,14 @@ describe('appLoader.load', () => {
     expect(appLoader.load(file).same.httpClient).toBe(flows.httpClient);
   });
 
-  test('answers the legacy package name too', () => {
-    const file = write('index.ts', "import { applications } from 'lab34-flows';\nexport const it = applications;");
+  test.each(['@lab34/flows', 'lab34-flows'])('answers the names from before the rename too: %s', (name) => {
+    const file = write('index.ts', `import { applications } from '${name}';\nexport const it = applications;`);
     expect(appLoader.load(file).it).toBe(flows.applications);
   });
 
   test('a subpath import reaches into the installation', () => {
     const file = write('index.ts', [
-      "import * as replacer from '@lab34/flows/src/helpers/replacer';",
+      "import * as replacer from 'ronsel/src/helpers/replacer';",
       'export const it = replacer;'
     ].join('\n'));
 

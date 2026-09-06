@@ -7,8 +7,8 @@ import os from 'os';
 import path from 'path';
 
 // Every helper resolves its files through paths.contextDir: point it at a
-// throwaway directory so the tests never touch the real ~/lab34-flows
-const mockContext = fs.mkdtempSync(path.join(os.tmpdir(), 'lab34-flows-test-'));
+// throwaway directory so the tests never touch the real ~/ronsel
+const mockContext = fs.mkdtempSync(path.join(os.tmpdir(), 'ronsel-test-'));
 const CONTEXT = mockContext;
 
 jest.mock('../../src/helpers/paths', () => ({

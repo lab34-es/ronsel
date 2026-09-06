@@ -30,7 +30,7 @@ const jsonLd = [
     keywords: topic.keywords.join(', '),
     isPartOf: {
       '@type': 'WebSite',
-      name: 'lab34/flows',
+      name: 'ronsel',
       url: new URL(withBase('/'), Astro.site).href,
     },
     author: { '@type': 'Person', name: 'Jose Constela' },
@@ -42,7 +42,7 @@ const jsonLd = [
       {
         '@type': 'ListItem',
         position: 1,
-        name: 'lab34/flows',
+        name: 'ronsel',
         item: new URL(withBase('/'), Astro.site).href,
       },
       {
@@ -58,7 +58,7 @@ const jsonLd = [
 ---
 
 <DocsLayout
-  title={`${topic.title} — lab34/flows docs`}
+  title={`${topic.title} — ronsel docs`}
   description={topic.summary}
   activeId={topic.id}
   ogType="article"

@@ -34,14 +34,14 @@ const inDocs = Astro.url.pathname.startsWith(withBase('/docs'));
 
     <!-- Open Graph -->
     <meta property="og:type" content={ogType} />
-    <meta property="og:site_name" content="lab34/flows" />
+    <meta property="og:site_name" content="ronsel" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="lab34/flows — end-to-end tests as Markdown documents" />
+    <meta property="og:image:alt" content="ronsel — end-to-end tests as Markdown documents" />
     <meta property="og:locale" content="en_US" />
 
     <!-- Twitter -->
@@ -75,7 +75,7 @@ const inDocs = Astro.url.pathname.startsWith(withBase('/docs'));
   <body>
     <header class="fl-header">
       <nav class="fl-nav" aria-label="Main">
-        <a href={withBase('/')} class="fl-brand">lab34<span class="fl-slash">/</span>flows</a>
+        <a href={withBase('/')} class="fl-brand">ronsel</a>
         {navTag && <span class="fl-nav-tag">{navTag}</span>}
         <span class="fl-spacer"></span>
         <a
@@ -94,7 +94,7 @@ const inDocs = Astro.url.pathname.startsWith(withBase('/docs'));
 
     <footer class:list={['fl-footer', wide && 'fl-footer-wide']}>
       <div class="fl-footer-inner">
-        <span>lab34<span class="fl-slash">/</span>flows</span>
+        <span>ronsel</span>
         <span>MIT</span>
         <span class="fl-spacer"></span>
         {

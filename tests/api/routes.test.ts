@@ -654,8 +654,8 @@ describe('POST /api/environment/import', () => {
 describe('/api/context', () => {
   test('returns the directory and its git state', async () => {
     (contextHelper.info as jest.Mock).mockResolvedValue({
-      path: '/home/someone/lab34-flows',
-      name: 'lab34-flows',
+      path: '/home/someone/ronsel',
+      name: 'ronsel',
       custom: false,
       git: { branch: 'main', changes: [] }
     });
@@ -663,7 +663,7 @@ describe('/api/context', () => {
     const res = await request(app).get('/api/context');
 
     expect(res.status).toBe(200);
-    expect(res.body.name).toBe('lab34-flows');
+    expect(res.body.name).toBe('ronsel');
     expect(res.body.git.branch).toBe('main');
   });
 

@@ -1,10 +1,10 @@
-# lab34/flows website
+# ronsel website
 
-The documentation website for [lab34-flows](https://github.com/lab34-es/flows),
+The documentation website for [ronsel](https://github.com/lab34-es/flows),
 published at **https://flows.lab34.es/**.
 
 - Built with [Astro](https://astro.build). The look is the editorial
-  lab34/flows theme: a bone ground (`#F3F2F2`) with ink type, a single brass
+  ronsel theme: a bone ground (`#F3F2F2`) with ink type, a single brass
   accent (`#B68235`) applied as stroke — borders, rules and underlines, never
   as a fill — IBM Plex Sans for prose and IBM Plex Mono for anything that is
   machinery (kickers, paths, code, metadata). Every color, size and rule comes

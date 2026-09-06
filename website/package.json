@@ -1,9 +1,9 @@
 {
-  "name": "lab34-flows-website",
+  "name": "ronsel-website",
   "private": true,
   "version": "0.0.1",
   "type": "module",
-  "description": "Documentation website for lab34-flows. Not part of the CLI package.",
+  "description": "Documentation website for ronsel. Not part of the CLI package.",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",

@@ -1,5 +1,5 @@
 {
-  "name": "@lab34/flows",
+  "name": "ronsel",
   "version": "1.10.0",
   "type": "commonjs",
   "main": "dist/index.js",
@@ -36,7 +36,7 @@
     "prepublishOnly": "npm run clean && npm run build:frontend && npm run build"
   },
   "bin": {
-    "lab34-flows": "./dist/cli.js"
+    "ronsel": "./dist/cli.js"
   },
   "author": "Jose Constela <jose@lab34.es>",
   "license": "MIT",

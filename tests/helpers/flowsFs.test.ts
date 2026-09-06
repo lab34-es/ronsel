@@ -5,7 +5,7 @@ import os from 'os';
 import path from 'path';
 
 // Every helper resolves through paths.contextDir: point it at a throwaway
-// directory so the tests never touch the real ~/lab34-flows.
+// directory so the tests never touch the real ~/ronsel.
 const CONTEXT = fs.mkdtempSync(path.join(os.tmpdir(), 'flows-fs-'));
 jest.mock('../../src/helpers/paths', () => ({
   contextDir: async (parts) => require('path').join(CONTEXT, ...(parts || []))

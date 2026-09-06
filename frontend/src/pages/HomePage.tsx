@@ -34,15 +34,13 @@ export function HomePage() {
   return (
     <div className="mx-auto w-full max-w-4xl space-y-8 p-6">
       <div className="space-y-2 pt-6">
-        {/* The tool's mark over the open-source lockup: ink panel, bone
-            stroke, brand radius. */}
+        {/* The tool's mark over its name: ink panel, bone stroke, brand
+            radius. */}
         <div className="bg-primary text-primary-foreground flex size-12 items-center justify-center rounded-md">
           <Workflow className="size-6" />
         </div>
         <h1 className="font-mono text-3xl tracking-[-0.04em]">
-          <span className="font-medium">lab34</span>
-          <span className="text-brass">/</span>
-          <span className="font-normal">flows</span>
+          <span className="font-medium">ronsel</span>
         </h1>
         <p className="text-muted-foreground max-w-2xl text-sm">
           Flows are <strong>Markdown documents</strong>: write anything — prose, headings, lists —

@@ -2,14 +2,14 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ThemedShot from "../components/ThemedShot.astro";
 import { withBase } from "../lib/help.js";
-import flowDark from "../assets/screenshots/flow-dark.png";
-import flowLight from "../assets/screenshots/flow-light.png";
-import folderDark from "../assets/screenshots/folder-dark.png";
-import folderLight from "../assets/screenshots/folder-light.png";
-import aiCreateDark from "../assets/screenshots/ai-create-dark.png";
-import aiCreateLight from "../assets/screenshots/ai-create-light.png";
-import aiEditDark from "../assets/screenshots/ai-edit-dark.png";
-import aiEditLight from "../assets/screenshots/ai-edit-light.png";
+import flowDark from "../../../frontend/public/help-images/flow-dark.webp";
+import flowLight from "../../../frontend/public/help-images/flow-light.webp";
+import folderDark from "../../../frontend/public/help-images/folder-dark.webp";
+import folderLight from "../../../frontend/public/help-images/folder-light.webp";
+import aiCreateDark from "../../../frontend/public/help-images/ai-create-dark.webp";
+import aiCreateLight from "../../../frontend/public/help-images/ai-create-light.webp";
+import aiEditDark from "../../../frontend/public/help-images/ai-edit-dark.webp";
+import aiEditLight from "../../../frontend/public/help-images/ai-edit-light.webp";
 
 const repoUrl = "https://github.com/lab34-es/flows";
 
@@ -91,13 +91,13 @@ const jsonLd = [
     {
         "@context": "https://schema.org",
         "@type": "WebSite",
-        name: "lab34/flows",
+        name: "ronsel",
         url: siteUrl,
     },
     {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        name: "lab34/flows",
+        name: "ronsel",
         description:
             "End-to-end test automation where every test is a Markdown document your team reads, reviews and runs — across HTTP APIs, PostgreSQL databases and MQTT brokers.",
         url: siteUrl,
@@ -106,7 +106,7 @@ const jsonLd = [
         softwareRequirements: "Node.js",
         license: "https://opensource.org/licenses/MIT",
         offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
-        downloadUrl: "https://www.npmjs.com/package/@lab34/flows",
+        downloadUrl: "https://www.npmjs.com/package/ronsel",
         codeRepository: repoUrl,
         author: { "@type": "Person", name: "Jose Constela" },
     },
@@ -114,8 +114,8 @@ const jsonLd = [
 ---
 
 <BaseLayout
-    title="lab34/flows — end-to-end tests your whole team can read"
-    description="lab34/flows turns every end-to-end test into a Markdown document. Your team reads it, reviews it and runs it — across APIs, databases and message brokers."
+    title="ronsel — end-to-end tests your whole team can read"
+    description="ronsel turns every end-to-end test into a Markdown document. Your team reads it, reviews it and runs it — across APIs, databases and message brokers."
     jsonLd={jsonLd}
 >
     <!-- 1 · hero -->
@@ -127,14 +127,14 @@ const jsonLd = [
             Test knowledge shouldn't live in one engineer's code
         </h1>
         <p class="fl-lede">
-            lab34/flows turns every end-to-end test into a Markdown document.
+            ronsel turns every end-to-end test into a Markdown document.
             Your team reads it, reviews it and runs it — across APIs, databases
             and message brokers.
         </p>
         <div class="fl-cta-row">
             <div class="fl-install">
                 <code
-                    ><span class="fl-dim">$</span> npm install -g @lab34/flows</code
+                    ><span class="fl-dim">$</span> npm install -g ronsel</code
                 >
                 <button
                     id="copy-cmd"
@@ -337,8 +337,8 @@ const jsonLd = [
                                 <p class="fl-ann-text">
                                     Any property you invent becomes a column
                                 </p>
-                                <a href={withBase("/docs/properties/")}
-                                    >/docs/properties/</a
+                                <a href={withBase("/docs/flows/")}
+                                    >/docs/flows/</a
                                 >
                             </div>
                             <div class="fl-ann">
@@ -415,8 +415,8 @@ const jsonLd = [
                                 <p class="fl-ann-text">
                                     This is documentation. It is also the test
                                 </p>
-                                <a href={withBase("/docs/flow-anatomy/")}
-                                    >/docs/flow-anatomy/</a
+                                <a href={withBase("/docs/concepts/")}
+                                    >/docs/concepts/</a
                                 >
                             </div>
                         </aside>
@@ -569,8 +569,8 @@ const jsonLd = [
                                 <p class="fl-ann-text">
                                     The courier, faked — including the failure
                                 </p>
-                                <a href={withBase("/docs/mimic/")}
-                                    >/docs/mimic/</a
+                                <a href={withBase("/docs/step-blocks/")}
+                                    >/docs/step-blocks/</a
                                 >
                             </div>
                         </aside>
@@ -962,7 +962,7 @@ const jsonLd = [
             </div>
             <div class="fl-console">
                 <p class="fl-dim">
-                    $ lab34-flows --file
+                    $ ronsel --file
                     flows/logistics/failed-delivery-retry.md --env staging
                 </p>
                 <p style="margin-top:8px">
@@ -1327,7 +1327,7 @@ const jsonLd = [
             <h2 class="fl-h2">Who builds it</h2>
             <p class="fl-p fl-p-last" style="max-width:58ch">
                 lab34 is an engineering company in Galicia, Spain, building AI
-                for IT operations. flows is open source — published because
+                for IT operations. ronsel is open source — published because
                 working tools are better proof than slides. More at <a
                     href="https://lab34.es">lab34.es</a
                 >.
@@ -1348,8 +1348,8 @@ const jsonLd = [
             </p>
             <pre
                 class="fl-code fl-code-rounded fl-code-lg"
-                style="max-width:640px"><span class="fl-dim">$</span> npm install -g @lab34/flows
-<span class="fl-dim">$</span> lab34-flows --server
+                style="max-width:640px"><span class="fl-dim">$</span> npm install -g ronsel
+<span class="fl-dim">$</span> ronsel --server
 <span class="fl-dim">→ http://localhost:3001</span></pre>
             <div style="display:flex;gap:16px;flex-wrap:wrap;margin:32px 0 0">
                 <a href={withBase("/docs/")} class="fl-cta">Read the docs →</a>
@@ -1554,7 +1554,7 @@ const jsonLd = [
     const copy = document.getElementById("copy-cmd");
     copy?.addEventListener("click", async () => {
         try {
-            await navigator.clipboard.writeText("npm install -g @lab34/flows");
+            await navigator.clipboard.writeText("npm install -g ronsel");
         } catch {
             /* clipboard unavailable — the command is selectable anyway */
         }

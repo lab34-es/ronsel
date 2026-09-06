@@ -30,7 +30,7 @@ export function ContextIndicator() {
       <FolderOpen className="text-muted-foreground size-4 shrink-0" />
       {/* A filesystem path speaks as data, so it is set in the mono voice */}
       <span className="max-w-56 truncate font-mono text-[13px] font-medium" title={title}>
-        {contextInfo?.path || 'lab34/flows'}
+        {contextInfo?.path || 'ronsel'}
       </span>
 
       <BranchMenu />

@@ -1,9 +1,9 @@
 export const logo = (append) => {
-  console.log('  __ _                   ');
-  console.log(' / _| | _____      _____ ');
-  console.log('| |_| |/ _ \\ \\ /\\ / / __|');
-  console.log('|  _| | (_) \\ V  V /\\__ \\');
-  console.log(`|_| |_|\\___/ \\_/\\_/ |___/ ${append}`);
+  console.log('                          _ ');
+  console.log(' _ __ ___  _ __  ___  ___| |');
+  console.log("| '__/ _ \\| '_ \\/ __|/ _ \\ |");
+  console.log('| | | (_) | | | \\__ \\  __/ |');
+  console.log(`|_|  \\___/|_| |_|___/\\___|_| ${append}`);
 };
 
 /**

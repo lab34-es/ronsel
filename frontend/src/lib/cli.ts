@@ -28,7 +28,7 @@ function quote(value) {
  * @returns {string}
  */
 export function viewCommand({ contextPath, environment, view, folder }) {
-  const parts = ['lab34-flows'];
+  const parts = ['ronsel'];
 
   if (contextPath) { parts.push('--context', quote(contextPath)); }
   parts.push('--env', environment ? quote(environment) : '<environment>');

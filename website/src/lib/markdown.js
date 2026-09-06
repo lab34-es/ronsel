@@ -1,4 +1,5 @@
 import { Marked } from 'marked';
+import { withBase } from './help.js';
 
 /**
  * Callout types, in the GitHub / Obsidian `> [!NOTE]` syntax. The app renders
@@ -25,6 +26,16 @@ const CALLOUTS = {
     icon: '<path d="M12 16h.01"/><path d="M12 8v4"/><path d="M15.312 2a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586l-4.688-4.688A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2z"/>',
   },
 };
+
+// The screenshots the articles embed live with the app, in
+// frontend/public/help-images, where the app serves them as /help-images/…;
+// here Vite emits them as assets. One light and one dark capture per name.
+const SHOTS = import.meta.glob('../../../frontend/public/help-images/*.webp', {
+  eager: true,
+  import: 'default',
+  query: '?url',
+});
+const shotUrl = (file) => SHOTS[`../../../frontend/public/help-images/${file}`];
 
 // The marker opens the quote and may carry a custom title on the same line.
 const MARKER = new RegExp(`^\\[!(${Object.keys(CALLOUTS).join('|')})\\][ \\t]*([^\\n]*)(?:\\n|$)`, 'i');
@@ -53,6 +64,31 @@ const marked = new Marked({
         escapeHtml(title),
         `</p>${body}</div>`,
       ].join('');
+    },
+    // `![alt](/help-images/<name>.webp)` is a screenshot of the tool: both
+    // captures are emitted and the stylesheet shows the one of the theme.
+    image(token) {
+      const match = /^\/help-images\/([\w-]+)\.webp$/.exec(token.href || '');
+      if (!match) return false;
+      const light = shotUrl(`${match[1]}-light.webp`);
+      const dark = shotUrl(`${match[1]}-dark.webp`);
+      if (!light || !dark) return false;
+      const alt = escapeHtml(token.text || '');
+      return [
+        '<span class="fl-doc-shot">',
+        `<img class="fl-shot-light" src="${light}" alt="${alt}" loading="lazy">`,
+        `<img class="fl-shot-dark" src="${dark}" alt="${alt}" loading="lazy">`,
+        '</span>',
+      ].join('');
+    },
+    // Articles link to each other the way the app does, as `/help/<id>`; here
+    // the same article is `/docs/<id>/`. The token is rewritten and left to
+    // the default renderer.
+    link(token) {
+      const match = /^\/help\/([^/#?]+)\/?(#.*)?$/.exec(token.href || '');
+      if (!match) return false;
+      token.href = withBase(`/docs/${match[1]}/${match[2] || ''}`);
+      return false;
     },
   },
 });

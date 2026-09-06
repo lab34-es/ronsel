@@ -1,5 +1,5 @@
 /**
- * Public entry point for `require('@lab34/flows')`.
+ * Public entry point for `require('ronsel')`.
  *
  * Re-exports the helpers that make up the programmable surface of the tool,
  * plus express itself so consumers can mount the mimic servers without taking

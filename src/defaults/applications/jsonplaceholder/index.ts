@@ -2,8 +2,8 @@
  * A free fake REST API (jsonplaceholder.typicode.com) with posts and users.
  * Demonstrates CRUD-style steps and passing data between steps via memory.
  */
-import { applications, httpClient } from '@lab34/flows';
-import type { Context, Parameters } from '@lab34/flows';
+import { applications, httpClient } from 'ronsel';
+import type { Context, Parameters } from 'ronsel';
 
 /**
  * GET /posts — lists posts, optionally filtered by user.

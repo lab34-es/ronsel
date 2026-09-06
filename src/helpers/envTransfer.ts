@@ -181,7 +181,7 @@ const exportSelection = async (selection: Selection[]) => {
   }
 
   const header = [
-    '# Environment variables exported from lab34/flows.',
+    '# Environment variables exported from ronsel.',
     '# Paste it into the Import section of the Environment variables screen to',
     '# write these values into the env files of your own context.',
     '#',
