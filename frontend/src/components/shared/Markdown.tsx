@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Info, Lightbulb, MessageSquareWarning, OctagonAlert, TriangleAlert } from 'lucide-react';
@@ -41,34 +40,13 @@ export function Markdown({ children, className }: { children?: any; className?: 
             }
             return <pre>{preChildren}</pre>;
           },
-          // A link to another help article (`/help/<id>`) stays inside the app,
-          // through the router; every other link opens in a new tab.
+          // Prose here is a flow or a README, never a page of the app, so
+          // every link is outbound and opens in a new tab.
           a({ children: linkChildren, node: _node, href, ...props }) {
-            if (href && href.startsWith('/help/')) {
-              return (
-                <Link to={href} {...props}>
-                  {linkChildren}
-                </Link>
-              );
-            }
             return (
               <a {...props} href={href} target="_blank" rel="noreferrer">
                 {linkChildren}
               </a>
-            );
-          },
-          // A screenshot of the tool (`/help-images/<name>.webp`) follows the
-          // theme: the light capture in light mode, the dark one in dark mode.
-          // The files live in public/help-images, one pair per name.
-          img({ node: _node, src, alt, ...props }) {
-            const shot = /^\/help-images\/([\w-]+)\.webp$/.exec(String(src || ''));
-            if (!shot) return <img src={src} alt={alt} {...props} />;
-            const base = `/help-images/${shot[1]}`;
-            return (
-              <span className="help-shot">
-                <img src={`${base}-light.webp`} alt={alt} loading="lazy" className="dark:hidden" />
-                <img src={`${base}-dark.webp`} alt={alt} loading="lazy" className="hidden dark:block" />
-              </span>
             );
           },
           // remark-callouts turns `> [!NOTE]` blockquotes into divs carrying

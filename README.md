@@ -4,21 +4,21 @@
 
 **Trigger, understand and test E2E flows and behaviours.**
 
-[![CI](https://github.com/lab34-es/flows/actions/workflows/ci.yml/badge.svg)](https://github.com/lab34-es/flows/actions/workflows/ci.yml)
-[![Coverage](https://raw.githubusercontent.com/lab34-es/flows/badges/coverage.svg)](https://github.com/lab34-es/flows/actions/workflows/ci.yml)
-[![CodeQL](https://raw.githubusercontent.com/lab34-es/flows/badges/codeql.svg)](https://github.com/lab34-es/flows/security/code-scanning)
+[![CI](https://github.com/lab34-es/ronsel/actions/workflows/ci.yml/badge.svg)](https://github.com/lab34-es/ronsel/actions/workflows/ci.yml)
+[![Coverage](https://raw.githubusercontent.com/lab34-es/ronsel/badges/coverage.svg)](https://github.com/lab34-es/ronsel/actions/workflows/ci.yml)
+[![CodeQL](https://raw.githubusercontent.com/lab34-es/ronsel/badges/codeql.svg)](https://github.com/lab34-es/ronsel/security/code-scanning)
 [![npm](https://img.shields.io/npm/v/ronsel)](https://www.npmjs.com/package/ronsel)
 [![license](https://img.shields.io/npm/l/ronsel)](https://www.npmjs.com/package/ronsel)
 
 <p align="center">
-  <a href="https://flows.lab34.es/docs/">Documentation</a> ·
-  <a href="https://flows.lab34.es/docs/quick-start/">Quick start</a> ·
-  <a href="https://flows.lab34.es/">Website</a> ·
-  <a href="https://github.com/lab34-es/flows/issues">Issues</a>
+  <a href="https://ronsel.lab34.es/docs/">Documentation</a> ·
+  <a href="https://ronsel.lab34.es/docs/quick-start/">Quick start</a> ·
+  <a href="https://ronsel.lab34.es/">Website</a> ·
+  <a href="https://github.com/lab34-es/ronsel/issues">Issues</a>
 </p>
 
-<a href="frontend/public/help-images/flow-light.webp">
-  <img src="frontend/public/help-images/flow-light.webp" alt="A flow after a run" width="900">
+<a href=".github/screenshots/flow.webp">
+  <img src=".github/screenshots/flow.webp" alt="A flow after a run" width="900">
 </a>
 
 </div>
@@ -66,7 +66,7 @@ test:
 
 | Home | Folder | AI create | AI edit | Settings |
 | --- | --- | --- | --- | --- |
-| [![Home](frontend/public/help-images/home-light.webp)](frontend/public/help-images/home-light.webp) | [![A folder as a table](frontend/public/help-images/folder-light.webp)](frontend/public/help-images/folder-light.webp) | [![Create a flow with AI](frontend/public/help-images/ai-create-light.webp)](frontend/public/help-images/ai-create-light.webp) | [![Edit a flow with AI](frontend/public/help-images/ai-edit-light.webp)](frontend/public/help-images/ai-edit-light.webp) | [![Settings](frontend/public/help-images/settings-light.webp)](frontend/public/help-images/settings-light.webp) |
+| [![Home](.github/screenshots/home.webp)](.github/screenshots/home.webp) | [![A folder as a table](.github/screenshots/folder.webp)](.github/screenshots/folder.webp) | [![Create a flow with AI](.github/screenshots/ai-create.webp)](.github/screenshots/ai-create.webp) | [![Edit a flow with AI](.github/screenshots/ai-edit.webp)](.github/screenshots/ai-edit.webp) | [![Settings](.github/screenshots/settings.webp)](.github/screenshots/settings.webp) |
 
 ## Features
 
@@ -110,7 +110,7 @@ npx playwright install          # all three browsers
 npx playwright install chromium # or just the one you use
 ```
 
-See [Quick start](https://flows.lab34.es/docs/quick-start/) for the first-run
+See [Quick start](https://ronsel.lab34.es/docs/quick-start/) for the first-run
 walkthrough.
 
 ## Usage
@@ -134,8 +134,8 @@ pipeline carries its credentials as one file next to the command instead of a
 folder of env files nobody can commit. Add `--dry-run` to see what it would
 write without writing it.
 
-Full reference: [Test runs](https://flows.lab34.es/docs/test-runs/) and
-[Command line](https://flows.lab34.es/docs/cli/).
+Full reference: [Test runs](https://ronsel.lab34.es/docs/test-runs/) and
+[Command line](https://ronsel.lab34.es/docs/cli/).
 
 ### Running on another machine
 
@@ -149,7 +149,7 @@ the context (a clone of the same repository) and a name the broker knows it
 by:
 
 ```bash
-ronsel --context ~/flows-agent --agent --agent-id agent-ourense \
+ronsel --context ~/ronsel-agent --agent --agent-id agent-ourense \
   --broker mqtts://mqtt.example:443 --username agent-ourense --password '...'
 ```
 
@@ -183,8 +183,10 @@ any MQTT 5 broker does (EMQX, Mosquitto, HiveMQ).
 
 ## Documentation
 
-You can access the entire documentation at  at **[flows.lab34.es/docs](https://flows.lab34.es/docs/)**. 
-The same articles ship inside the app's Help section.
+The whole documentation is at **[ronsel.lab34.es/docs](https://ronsel.lab34.es/docs/)**,
+and the **Help** button in the app opens it. It is written and published from
+its own repository, [lab34-es/ronsel-website](https://github.com/lab34-es/ronsel-website) —
+corrections and new articles go there.
 
 ## Development
 
@@ -223,7 +225,7 @@ unless all of it passes:
 | Lint | `eslint` over `src/`, `tests/` and `frontend/src/`, clean |
 | Types | `tsc --noEmit` for the package and for the frontend, clean |
 | Coverage | statements, branches, functions and lines of `src/` all **above 80%** |
-| Audit | `npm audit` finds **no critical** advisory in the root, frontend or website tree |
+| Audit | `npm audit` finds **no critical** advisory in the root or frontend tree |
 | Build | `dist/` compiles and `node dist/cli.js --help` runs; the frontend builds |
 
 The threshold lives in [`jest.config.js`](jest.config.js) (`coverageThreshold`),

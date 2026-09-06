@@ -127,7 +127,7 @@ export function AppSidebar() {
             button), so the two outbound links sit on their own row. */}
         <div className="text-muted-foreground flex items-center gap-2 px-2 text-xs group-data-[collapsible=icon]:hidden">
           <a
-            href="https://flows.lab34.es"
+            href="https://ronsel.lab34.es"
             target="_blank"
             rel="noreferrer"
             className="hover:text-sidebar-accent-foreground inline-flex items-center gap-1 underline-offset-4 hover:underline"

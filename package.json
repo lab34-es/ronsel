@@ -4,13 +4,13 @@
   "type": "commonjs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "homepage": "https://github.com/lab34-es/flows",
+  "homepage": "https://github.com/lab34-es/ronsel",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lab34-es/flows.git"
+    "url": "git+https://github.com/lab34-es/ronsel.git"
   },
   "bugs": {
-    "url": "https://github.com/lab34-es/flows/issues"
+    "url": "https://github.com/lab34-es/ronsel/issues"
   },
   "engines": {
     "node": ">=24.0.0"

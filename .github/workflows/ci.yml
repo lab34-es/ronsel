@@ -8,8 +8,7 @@
 #   - coverage of src/ is above 80% on statements, branches, functions and
 #     lines (enforced by coverageThreshold in jest.config.js, so the numbers
 #     live in one place rather than being restated here)
-#   - npm audit reports no critical vulnerability, in any of the three
-#     package trees
+#   - npm audit reports no critical vulnerability, in either package tree
 #   - the package and the frontend both build
 #   - the pull request title is a conventional commit
 #
@@ -30,10 +29,10 @@
 # cannot drift apart -- which is what used to leave tags on master pointing
 # at commits naming a different version, and nothing published at all.
 #
-# Every job takes its Node version from .nvmrc, so the pipelines, the website
-# build and a local `nvm use` all run the same release. Keep .nvmrc on a Node
-# LTS line that satisfies "engines" in package.json; .npmrc sets engine-strict,
-# so an end-of-life or too-old release fails `npm ci` outright.
+# Every job takes its Node version from .nvmrc, so the pipelines and a local
+# `nvm use` all run the same release. Keep .nvmrc on a Node LTS line that
+# satisfies "engines" in package.json; .npmrc sets engine-strict, so an
+# end-of-life or too-old release fails `npm ci` outright.
 
 name: CI
 
@@ -148,9 +147,6 @@ jobs:
       - name: Audit (frontend)
         run: npm audit --audit-level=critical --prefix frontend
 
-      - name: Audit (website)
-        run: npm audit --audit-level=critical --prefix website
-
       - name: Report non-critical advisories
         if: always()
         run: |
@@ -159,7 +155,7 @@ jobs:
             echo
             echo "| Package tree | critical | high | moderate | low |"
             echo "| --- | --- | --- | --- | --- |"
-            for dir in . frontend website; do
+            for dir in . frontend; do
               counts=$(npm audit --json --prefix "$dir" 2>/dev/null \
                 | node -e '
                   let raw = "";

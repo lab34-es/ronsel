@@ -17,10 +17,13 @@ import { agentLabel } from '@/lib/agents';
 import { useAppState } from '@/context/AppStateContext';
 import { useActiveLocation, useWorkspace } from '@/workspace/WorkspaceContext';
 
+/** Where the documentation lives. The tool carries no help of its own. */
+const DOCS = 'https://ronsel.lab34.es/docs/';
+
 /* The bar over every page. On the left, which folder the app is working in
    and its git state; on the right, the three controls that belong to the whole
    app rather than to any one page: which environment the flows run against,
-   the help, and the settings. */
+   the documentation, and the settings. */
 export function TopBar() {
   const { openTab } = useWorkspace();
   const location = useActiveLocation();
@@ -33,7 +36,6 @@ export function TopBar() {
   const picked = agents.find((item) => item.agent === agent);
 
   const onSettings = location.pathname.startsWith('/settings');
-  const onHelp = location.pathname.startsWith('/help');
 
   return (
     <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
@@ -82,13 +84,17 @@ export function TopBar() {
           </Select>
         )}
 
-        <Button
-          variant={onHelp ? 'secondary' : 'ghost'}
-          size="sm"
-          onClick={() => openTab('/help')}
-          title="How flows, steps and applications work"
-        >
-          <CircleHelp /> Help
+        {/* The documentation is a website, not a screen of the app: this
+            opens it in the browser rather than in a workspace tab. */}
+        <Button variant="ghost" size="sm" asChild>
+          <a
+            href={DOCS}
+            target="_blank"
+            rel="noreferrer"
+            title="How flows, steps and applications work (opens ronsel.lab34.es)"
+          >
+            <CircleHelp /> Help
+          </a>
         </Button>
 
         <Button

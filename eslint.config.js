@@ -8,7 +8,6 @@ module.exports = tseslint.config(
     ignores: [
       'node_modules/**',
       'frontend/**',
-      'website/**',
       'dist/**',
       'build/**',
       'coverage/**',
