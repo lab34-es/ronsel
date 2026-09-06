@@ -414,7 +414,7 @@ body { margin: 0; background: #E9E7E4; color: #201F1D;
 <div class="panel">
 <div class="head">
 <div class="titles">
-<span class="brand">lab34/flows</span>
+<span class="brand">ronsel</span>
 <span class="headline">${headline}</span>
 </div>
 <span class="corner">${escapeHtml(triggerLabel(summary.trigger))}</span>
@@ -437,7 +437,7 @@ ${failuresSection}
 ${suiteRows}
 </div>
 <div class="footer">
-<span>lab34/flows · generated ${utc(Date.now())}</span><span>each square = one flow · tap a row to expand its steps</span>
+<span>ronsel · generated ${utc(Date.now())}</span><span>each square = one flow · tap a row to expand its steps</span>
 </div>
 </div>
 </div>

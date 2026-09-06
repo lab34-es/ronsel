@@ -25,10 +25,11 @@ keywords:
 ---
 
 Everything the tool reads and writes lives under one folder, the **context
-directory**. By default that is `~/lab34-flows`; pass `--context <path>` to
+directory**. By default that is `~/ronsel`; pass `--context <path>` to
 use another one, one per project if you like. The folder has to exist
 already, and its name is always shown in the top bar, so you know which one
-you are looking at.
+you are looking at. An installation from before the tool was renamed keeps
+using its `~/lab34-flows` for as long as there is no `~/ronsel`.
 
 ## What is in it
 

@@ -5,22 +5,22 @@ import { groupedTopics, withBase } from "../../lib/help.js";
 const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "lab34/flows documentation",
+    name: "ronsel documentation",
     description:
-        "Everything about writing, running and integrating lab34/flows: the same articles the tool ships in its Help section.",
+        "Everything about writing, running and integrating ronsel: the same articles the tool ships in its Help section.",
     url: new URL(Astro.url.pathname, Astro.site).href,
     inLanguage: "en",
     isPartOf: {
         "@type": "WebSite",
-        name: "lab34/flows",
+        name: "ronsel",
         url: new URL(withBase("/"), Astro.site).href,
     },
 };
 ---
 
 <DocsLayout
-    title="Documentation — lab34/flows"
-    description="Everything about writing, running and integrating lab34/flows: the same articles the tool ships in its Help section."
+    title="Documentation — ronsel"
+    description="Everything about writing, running and integrating ronsel: the same articles the tool ships in its Help section."
     jsonLd={jsonLd}
 >
     <h1 class="fl-docs-h1">Documentation</h1>

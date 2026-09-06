@@ -19,12 +19,12 @@ method: get
 description: Send a query parameter and assert the echo
 parameters:
   query:
-    tool: lab34-flows
+    tool: ronsel
 test:
   status: 200
   body:
     args:
-      tool: lab34-flows
+      tool: ronsel
 ```
 
 ## Random data on every run

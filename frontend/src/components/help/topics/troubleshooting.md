@@ -19,7 +19,7 @@ keywords:
 
 **"Context directory does not exist".** `--context` points at a folder that
 is not there. The tool does not create it: `mkdir` it first, or drop the flag
-to use `~/lab34-flows`.
+to use `~/ronsel`.
 
 **The flow tree is empty.** Flows are read from `flows/` in the context folder
 shown in the top bar. Use *Refresh* in the `+` menu after adding files by

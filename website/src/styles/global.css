@@ -3,7 +3,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ---------------------------------------------------------------------------
-   lab34/flows — editorial theme.
+   ronsel — editorial theme.
    Bone ground, ink type, a single brass accent applied as stroke: borders,
    rules and underlines, never as a fill. IBM Plex Sans for prose, IBM Plex
    Mono for anything that is machinery — kickers, paths, code, metadata.

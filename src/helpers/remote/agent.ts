@@ -14,7 +14,7 @@ import type { AgentIdentity } from './config';
 import type { SealedBox } from './crypto';
 
 /**
- * The agent: `lab34-flows --agent` on the machine that can reach the systems
+ * The agent: `ronsel --agent` on the machine that can reach the systems
  * under test.
  *
  * It sits on the broker under its own name, says whether it is free, and

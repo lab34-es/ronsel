@@ -21,8 +21,8 @@
 import http from 'http';
 import { AddressInfo } from 'net';
 
-import { playwright, applications } from '@lab34/flows';
-import type { Context, Parameters, Flow } from '@lab34/flows';
+import { playwright, applications } from 'ronsel';
+import type { Context, Parameters, Flow } from 'ronsel';
 
 /**
  * What the site handed out the last time it served the page.

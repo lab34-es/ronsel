@@ -30,7 +30,7 @@ import mqtt from 'mqtt';
 import createDebug from 'debug';
 import { v4 as uuidv4 } from 'uuid';
 
-const debug = createDebug('lab34:flows:helpers:mqttClient');
+const debug = createDebug('ronsel:helpers:mqttClient');
 
 /** What `publish` accepts beyond the topic and the message. */
 export interface PublishOptions {
@@ -64,7 +64,7 @@ const options = (ctx): mqtt.IClientOptions => {
   const opts: Record<string, any> = {
     host: env.MQTT_HOST,
     protocol: env.MQTT_PROTOCOL || (tls ? 'mqtts' : 'mqtt'),
-    clientId: env.MQTT_CLIENT_ID || `lab34-flows-${uuidv4()}`
+    clientId: env.MQTT_CLIENT_ID || `ronsel-${uuidv4()}`
   };
 
   if (env.MQTT_PORT) { opts.port = parseInt(env.MQTT_PORT, 10); }

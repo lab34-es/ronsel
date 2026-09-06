@@ -31,4 +31,4 @@ keywords:
 - **Bugs and ideas.** Check [Troubleshooting](/help/troubleshooting) first, then open an issue at
   [github.com/lab34-es/flows/issues](https://github.com/lab34-es/flows/issues).
   The output of `--debug`, the flow, and the version from
-  `lab34-flows --version` make it answerable.
+  `ronsel --version` make it answerable.

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import createDebug from 'debug';
 
-const debug = createDebug('lab34:flows:helpers:httpClient');
+const debug = createDebug('ronsel:helpers:httpClient');
 
 /**
  * Generates request headers based on the context environment

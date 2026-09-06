@@ -82,15 +82,34 @@ describe('helpers/paths', () => {
     jest.resetModules();
   });
 
-  test('defaults to ~/lab34-flows', async () => {
+  test('defaults to ~/ronsel', async () => {
     const paths = require('../../src/helpers/paths');
-    expect(await paths.contextDir()).toBe(path.join(HOME, 'lab34-flows'));
+    expect(await paths.contextDir()).toBe(path.join(HOME, 'ronsel'));
+  });
+
+  test('keeps using ~/lab34-flows, from before the rename, while there is no ~/ronsel', async () => {
+    const home = fs.mkdtempSync(path.join(os.tmpdir(), 'home-'));
+    const spy = jest.spyOn(os, 'homedir').mockReturnValue(home);
+    try {
+      jest.resetModules();
+      const paths = require('../../src/helpers/paths');
+      expect(await paths.contextDir()).toBe(path.join(home, 'ronsel'));
+
+      fs.mkdirSync(path.join(home, 'lab34-flows'));
+      expect(await paths.contextDir()).toBe(path.join(home, 'lab34-flows'));
+
+      fs.mkdirSync(path.join(home, 'ronsel'));
+      expect(await paths.contextDir()).toBe(path.join(home, 'ronsel'));
+    } finally {
+      spy.mockRestore();
+      fs.rmSync(home, { recursive: true, force: true });
+    }
   });
 
   test('appends the requested path parts', async () => {
     const paths = require('../../src/helpers/paths');
     expect(await paths.contextDir(['flows', 'a.md']))
-      .toBe(path.join(HOME, 'lab34-flows', 'flows', 'a.md'));
+      .toBe(path.join(HOME, 'ronsel', 'flows', 'a.md'));
   });
 
   test('an absolute --context is used as the base', async () => {
@@ -128,7 +147,7 @@ describe('helpers/paths', () => {
 
   test('contextRoot is the context directory itself', async () => {
     const paths = require('../../src/helpers/paths');
-    expect(await paths.contextRoot()).toBe(path.join(HOME, 'lab34-flows'));
+    expect(await paths.contextRoot()).toBe(path.join(HOME, 'ronsel'));
     expect(paths.hasCustomContext()).toBe(false);
   });
 

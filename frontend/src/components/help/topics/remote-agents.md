@@ -51,7 +51,7 @@ step asks for a value, and the test-run folder, written into your own
 On the machine that can reach the systems, with a clone of the context:
 
 ```bash
-lab34-flows --context ~/flows-agent --agent --agent-id agent-ourense \
+ronsel --context ~/flows-agent --agent --agent-id agent-ourense \
   --broker mqtts://mqtt.example.com:443 --username agent-ourense --password '...'
 ```
 
@@ -72,8 +72,8 @@ any other.
 From the command line the same thing is:
 
 ```bash
-lab34-flows --remote agent-ourense --file flows/my-flow.md --env uat
-lab34-flows --remote agent-ourense --view smoke --env uat
+ronsel --remote agent-ourense --file flows/my-flow.md --env uat
+ronsel --remote agent-ourense --view smoke --env uat
 ```
 
 ## Trust

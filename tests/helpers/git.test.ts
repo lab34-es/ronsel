@@ -89,9 +89,9 @@ describe('parseStatus', () => {
 
 describe('webUrlFromRemote', () => {
   test.each([
-    ['git@github.com:lab34-es/lab34-flows.git', 'https://github.com/lab34-es/lab34-flows'],
+    ['git@github.com:lab34-es/ronsel.git', 'https://github.com/lab34-es/ronsel'],
     ['git@bitbucket.org:team/repo.git', 'https://bitbucket.org/team/repo'],
-    ['https://github.com/lab34-es/lab34-flows.git', 'https://github.com/lab34-es/lab34-flows'],
+    ['https://github.com/lab34-es/ronsel.git', 'https://github.com/lab34-es/ronsel'],
     ['https://gitlab.com/group/sub/repo', 'https://gitlab.com/group/sub/repo'],
     ['ssh://git@github.com/owner/repo.git', 'https://github.com/owner/repo']
   ])('%s becomes %s', (url, expected) => {

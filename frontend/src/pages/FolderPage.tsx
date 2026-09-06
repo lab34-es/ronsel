@@ -42,7 +42,7 @@ import { testRunUrl } from '@/lib/testRuns';
 // Which view was last used on a given folder. Views themselves are not tied
 // to a folder — only this preference is, and it stays in the browser so
 // views.yaml keeps no folder references.
-const VIEW_STORAGE_PREFIX = 'lab34-flows:view:';
+const VIEW_STORAGE_PREFIX = 'ronsel:view:';
 
 const rememberedView = (folder) => localStorage.getItem(`${VIEW_STORAGE_PREFIX}${folder}`) || '';
 const rememberView = (folder, name) => localStorage.setItem(`${VIEW_STORAGE_PREFIX}${folder}`, name);

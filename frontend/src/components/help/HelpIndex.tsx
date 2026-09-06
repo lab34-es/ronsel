@@ -78,7 +78,7 @@ export function HelpIndex() {
               <ExternalLink /> Report an issue
             </a>
           </Button>
-          <Badge variant="secondary">lab34-flows</Badge>
+          <Badge variant="secondary">ronsel</Badge>
         </div>
       </Card>
     </div>

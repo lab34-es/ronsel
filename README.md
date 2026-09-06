@@ -1,14 +1,14 @@
 <div align="center">
 
-# lab34/flows
+# ronsel
 
 **Trigger, understand and test E2E flows and behaviours.**
 
 [![CI](https://github.com/lab34-es/flows/actions/workflows/ci.yml/badge.svg)](https://github.com/lab34-es/flows/actions/workflows/ci.yml)
 [![Coverage](https://raw.githubusercontent.com/lab34-es/flows/badges/coverage.svg)](https://github.com/lab34-es/flows/actions/workflows/ci.yml)
 [![CodeQL](https://raw.githubusercontent.com/lab34-es/flows/badges/codeql.svg)](https://github.com/lab34-es/flows/security/code-scanning)
-[![npm](https://img.shields.io/npm/v/@lab34/flows)](https://www.npmjs.com/package/@lab34/flows)
-[![license](https://img.shields.io/npm/l/@lab34/flows)](https://www.npmjs.com/package/@lab34/flows)
+[![npm](https://img.shields.io/npm/v/ronsel)](https://www.npmjs.com/package/ronsel)
+[![license](https://img.shields.io/npm/l/ronsel)](https://www.npmjs.com/package/ronsel)
 
 <p align="center">
   <a href="https://flows.lab34.es/docs/">Documentation</a> ·
@@ -25,7 +25,7 @@
 
 ---
 
-Flows is a tool for testing end-to-end flows and behaviours across the systems
+Ronsel is a tool for testing end-to-end flows and behaviours across the systems
 you actually run: HTTP APIs, MQTT topics, PostgreSQL databases and web
 applications. You can run flow from the web UI while you are writing it, from
 the CLI on your machine, and unattended in your CI/CD pipelines.
@@ -98,7 +98,7 @@ test:
 Requires Node.js `>= 24.0.0` (the current active LTS line).
 
 ```bash
-npm install -g @lab34/flows
+npm install -g ronsel
 ```
 
 Browser automation needs one extra step: Playwright ships with the package but
@@ -116,13 +116,13 @@ walkthrough.
 ## Usage
 
 ```bash
-lab34-flows --server                                  # web UI on http://localhost:3001
-lab34-flows --file flows/my-flow.md --env production  # run a flow headlessly
-lab34-flows --view smoke-tests --env production       # run every flow a saved view matches
-lab34-flows --import-env env.yaml --view smoke --env uat  # load the env variables, then run
-lab34-flows --capabilities                            # list available applications and methods
-lab34-flows --version                                 # print the installed version
-lab34-flows --help
+ronsel --server                                  # web UI on http://localhost:3001
+ronsel --file flows/my-flow.md --env production  # run a flow headlessly
+ronsel --view smoke-tests --env production       # run every flow a saved view matches
+ronsel --import-env env.yaml --view smoke --env uat  # load the env variables, then run
+ronsel --capabilities                            # list available applications and methods
+ronsel --version                                 # print the installed version
+ronsel --help
 ```
 
 A `--view` is an scopped list of flows that matches criterias you specify via the UI.
@@ -149,7 +149,7 @@ the context (a clone of the same repository) and a name the broker knows it
 by:
 
 ```bash
-lab34-flows --context ~/flows-agent --agent --agent-id agent-ourense \
+ronsel --context ~/flows-agent --agent --agent-id agent-ourense \
   --broker mqtts://mqtt.example:443 --username agent-ourense --password '...'
 ```
 
@@ -160,8 +160,8 @@ prints its public key and stays up, waiting for jobs.
 On your machine, run a flow or a view on it:
 
 ```bash
-lab34-flows --remote agent-ourense --file flows/my-flow.md --env uat
-lab34-flows --remote agent-ourense --view smoke --env uat
+ronsel --remote agent-ourense --file flows/my-flow.md --env uat
+ronsel --remote agent-ourense --view smoke --env uat
 ```
 
 What travels: the commit your context is on (the agent fetches and checks it

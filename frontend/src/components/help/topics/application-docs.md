@@ -27,7 +27,7 @@ describes that method. Three readers use exactly that text:
 
 - the **application page**, which renders it as the method reference, with
   the example ready to paste;
-- `lab34-flows --capabilities`, on the terminal;
+- `ronsel --capabilities`, on the terminal;
 - the **AI**, which is handed the whole catalogue when it writes or rewrites
   a flow. It knows nothing else about your systems, so the quality of the
   generated flows is the quality of these blocks.

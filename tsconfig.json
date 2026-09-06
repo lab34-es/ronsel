@@ -7,7 +7,7 @@
     "target": "ES2022",
     "lib": ["ES2023"],
 
-    /* The package is published as CommonJS: consumers `require('@lab34/flows')`
+    /* The package is published as CommonJS: consumers `require('ronsel')`
        and the bin entry is loaded by Node directly. Authoring uses ESM syntax
        and tsc emits CJS, which also keeps require() interop with the handful of
        dependencies that are still CJS-only. */

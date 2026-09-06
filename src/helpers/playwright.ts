@@ -5,7 +5,7 @@ import fs from 'fs';
 import YAML from 'yaml';
 import createDebug from 'debug';
 
-const debug = createDebug('lab34:flows:helpers:playwright');
+const debug = createDebug('ronsel:helpers:playwright');
 
 import { chromium, firefox, webkit, devices } from 'playwright';
 

@@ -25,7 +25,7 @@ From nothing to a flow of your own, committed next to the code it tests.
 
 The tool is an npm package. It needs Node.js 24 or newer.
 
-    npm install -g @lab34/flows
+    npm install -g ronsel
 
 Flows that drive a browser also need Playwright's browsers, which are a
 separate download. Skip this until you need it:
@@ -41,12 +41,12 @@ of yours: a dedicated one, or a folder of the repository that holds the code
 under test.
 
     mkdir e2e
-    lab34-flows --server --context e2e
+    ronsel --server --context e2e
 
 The folder has to exist. The first start seeds it with four example
 applications and four example flows, and writes a `tsconfig.json` so your
 editor understands the applications. Leave `--context` out and the default
-folder, `~/lab34-flows`, is used instead. The name of the folder in use is
+folder, `~/ronsel`, is used instead. The name of the folder in use is
 always shown in the top bar.
 
 ## 3. Run a demo

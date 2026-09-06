@@ -32,7 +32,7 @@ triggered:
 |-|-|
 | **Run** on a flow page | That flow, against the environment in the top bar. |
 | **Run all** on a folder | Every flow the open view lists, one after the other. |
-| `lab34-flows --file` or `--view` | The same two things, from a terminal or a pipeline. See [Command line](/help/cli). |
+| `ronsel --file` or `--view` | The same two things, from a terminal or a pipeline. See [Command line](/help/cli). |
 
 An agent picked in the top bar, or `--remote` on the CLI, sends the run to
 another machine and brings its results back here. See

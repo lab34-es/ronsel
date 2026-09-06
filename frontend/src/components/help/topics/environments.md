@@ -115,7 +115,7 @@ password, and keep it out of git.
 The same document is what a CI/CD job, or a machine nobody has set up yet,
 gets its values from:
 
-    lab34-flows --context . --import-env env.yaml --view smoke --env uat
+    ronsel --context . --import-env env.yaml --view smoke --env uat
 
 `--import-env` writes the document into the context's env files **first**,
 then the flows run and find the files they need already there. On its own it

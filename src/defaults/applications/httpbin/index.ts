@@ -3,8 +3,8 @@
  * and headers, and can answer with any status code or delay. Great for
  * exploring HTTP testing without setting up a server.
  */
-import { applications, httpClient } from '@lab34/flows';
-import type { Context, Parameters } from '@lab34/flows';
+import { applications, httpClient } from 'ronsel';
+import type { Context, Parameters } from 'ronsel';
 
 /**
  * GET /get — httpbin echoes the query parameters and headers of the request.

@@ -281,7 +281,7 @@ function AgentsTable() {
           <ShieldCheck className="size-4" /> Agents
         </CardTitle>
         <CardDescription>
-          Every machine running <span className="font-mono">lab34-flows --agent</span> on this
+          Every machine running <span className="font-mono">ronsel --agent</span> on this
           broker. Pick one in the top bar and the Run buttons send the flows there. An agent's
           key is trusted the first time a run reaches it and refused if it ever changes; forget
           it here after reinstalling the agent on purpose.
@@ -358,7 +358,7 @@ function AgentsTable() {
         )}
 
         <pre className="bg-muted overflow-x-auto rounded-md p-3 text-xs">
-{`lab34-flows --context ~/flows-agent --agent --agent-id <name> \\
+{`ronsel --context ~/flows-agent --agent --agent-id <name> \\
   --broker <the URL above> --username <name> --password '...'`}
         </pre>
         <p className="text-muted-foreground text-xs">

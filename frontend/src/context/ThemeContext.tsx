@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-const THEME_STORAGE_KEY = 'lab34-flows:theme';
+const THEME_STORAGE_KEY = 'ronsel:theme';
 
 // What the user picked. "system" follows the operating system, the other two
 // force one look no matter what the OS says.

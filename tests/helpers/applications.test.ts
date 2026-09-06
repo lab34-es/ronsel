@@ -25,8 +25,8 @@ const write = (relative: string, content = '') => {
  * TypeScript, with the ESM import and export style applications now use.
  */
 const CALC_INDEX = `
-import { validate, applications } from '@lab34/flows';
-import type { Context, Parameters } from '@lab34/flows';
+import { validate, applications } from 'ronsel';
+import type { Context, Parameters } from 'ronsel';
 
 /**
  * Adds two numbers.
@@ -41,7 +41,7 @@ export const add = applications.handler([
 
 /** The same application as it was written before the TypeScript migration. */
 const CALC_INDEX_JS = `
-const { validate, applications } = require('lab34-flows');
+const { validate, applications } = require('ronsel');
 
 /**
  * Adds two numbers.

@@ -36,7 +36,7 @@ describe('mqttClient.publish - the connection', () => {
     await mqttClient.publish({ env: { MQTT_HOST: 'broker' } }, 'a/b', { hello: 1 });
 
     expect(connectOptions()).toEqual(expect.objectContaining({ host: 'broker', protocol: 'mqtt' }));
-    expect(connectOptions().clientId).toMatch(/^lab34-flows-/);
+    expect(connectOptions().clientId).toMatch(/^ronsel-/);
   });
 
   test('an application with no broker configured says so', async () => {

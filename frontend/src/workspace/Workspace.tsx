@@ -12,7 +12,7 @@ import { TabMenuProvider, WorkspaceTab } from '@/workspace/TabContextMenu';
 import { useWorkspace } from '@/workspace/WorkspaceContext';
 import { useTheme } from '@/context/ThemeContext';
 
-const LAYOUT_STORAGE_KEY = 'lab34-flows:workspace';
+const LAYOUT_STORAGE_KEY = 'ronsel:workspace';
 
 // A drag settles in a burst of layout events; one write at the end is enough.
 const SAVE_DELAY = 500;

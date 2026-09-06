@@ -9,7 +9,7 @@ import * as paths from '../../src/helpers/paths';
 import * as git from '../../src/helpers/git';
 import * as context from '../../src/helpers/context';
 
-const CONTEXT = '/home/someone/lab34-flows';
+const CONTEXT = '/home/someone/ronsel';
 
 const change = (filePath, status = 'modified') =>
   ({ path: filePath, status, staged: false, code: ' M' });
@@ -26,7 +26,7 @@ describe('info', () => {
 
     await expect(context.info()).resolves.toEqual({
       path: CONTEXT,
-      name: 'lab34-flows',
+      name: 'ronsel',
       custom: false,
       git: null
     });
@@ -56,13 +56,13 @@ describe('info', () => {
   test('below the root the prefix is stripped, and anything outside is null', async () => {
     (git.info as jest.Mock).mockResolvedValue({
       root: '/home/someone',
-      prefix: 'lab34-flows',
+      prefix: 'ronsel',
       branch: 'main',
       changes: [
-        change('lab34-flows/flows/a.md'),
+        change('ronsel/flows/a.md'),
         change('notes/todo.md'),
         // A path that merely starts with the same letters is not inside it
-        change('lab34-flows-old/flows/b.md')
+        change('ronsel-old/flows/b.md')
       ]
     });
 

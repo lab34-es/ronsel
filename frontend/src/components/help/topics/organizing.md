@@ -124,7 +124,7 @@ day it holds one slow flow, and a naming convention is enforced by nobody.
 
 A view is a filter, evaluated **when the command runs**:
 
-    lab34-flows --context e2e --view smoke --env uat
+    ronsel --context e2e --view smoke --env uat
 
 What runs is whatever matches today. A flow tagged `suite: smoke` tomorrow
 runs tomorrow, one moved to another folder still runs, and none of it touches

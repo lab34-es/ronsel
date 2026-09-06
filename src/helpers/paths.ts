@@ -21,6 +21,13 @@ const getWslWinHomeDir = async () => {
   return winDir;
 };
 
+/** The default context directory, when no --context is given. */
+const defaultContextDir = (baseDir: string) => {
+  const current = path.join(baseDir, 'ronsel');
+  const legacy = path.join(baseDir, 'lab34-flows');
+  return !fs.existsSync(current) && fs.existsSync(legacy) ? legacy : current;
+};
+
 export const contextDir = async (pathParts) => {
   const baseDir = isWsl ? await getWslWinHomeDir() : os.homedir();
   let context = argv.context;
@@ -45,8 +52,9 @@ export const contextDir = async (pathParts) => {
     // Use the context as base and add pathParts
     finalPathParts = [context].concat(pathParts || []);
   } else {
-    // Use default: home folder + "lab34-flows" + pathParts
-    finalPathParts = [baseDir, 'lab34-flows'].concat(pathParts || []);
+    // Use default: home folder + "ronsel" + pathParts. An installation from
+    // before the rename keeps its ~/lab34-flows until a ~/ronsel exists.
+    finalPathParts = [defaultContextDir(baseDir)].concat(pathParts || []);
   }
 
   const finalPath = path.join.apply(null, finalPathParts);

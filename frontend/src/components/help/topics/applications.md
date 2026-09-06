@@ -58,8 +58,8 @@ opens any of those files in an editor, `index.ts` included.
 
 ## A method
 
-    import { applications, httpClient } from '@lab34/flows';
-    import type { Context, Parameters } from '@lab34/flows';
+    import { applications, httpClient } from 'ronsel';
+    import type { Context, Parameters } from 'ronsel';
 
     /**
      * Refunds an order.
@@ -112,7 +112,7 @@ each source in order: the flow memory, a replacer, or a constant.
 
 ## The helpers
 
-Everything a method needs to reach a system comes from `@lab34/flows`.
+Everything a method needs to reach a system comes from `ronsel`.
 
 | Helper | What it does |
 |-|-|
@@ -142,7 +142,7 @@ which is a variable of its own env file.
 
 ## Listing what exists
 
-    lab34-flows --capabilities
+    ronsel --capabilities
 
 prints every application of the context with its methods: the same list the
 sidebar shows, and the same catalogue the AI is given when it writes a flow.

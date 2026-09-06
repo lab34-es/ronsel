@@ -100,7 +100,7 @@ written when the message never arrived.
 Listening has a mirror: an application method can *publish*, which is how a
 flow plays a device that is not there.
 
-    import { applications, mqttClient } from '@lab34/flows';
+    import { applications, mqttClient } from 'ronsel';
 
     export const scan = applications.handler([
       (ctx, parameters) => mqttClient.publish(

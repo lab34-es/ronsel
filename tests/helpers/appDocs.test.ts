@@ -8,7 +8,7 @@ const SOURCE = `/**
  *
  * It has **markdown** in its description.
  */
-import { applications } from 'lab34-flows';
+import { applications } from 'ronsel';
 
 /** Not attached to an export, must be ignored. */
 const helper = () => {};

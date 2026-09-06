@@ -18,8 +18,8 @@
  * The methods below are examples: keep them as a reference, or delete them
  * once your own are in place.
  */
-import { applications, httpClient, validate } from '@lab34/flows';
-import type { Context, Flow, Parameters } from '@lab34/flows';
+import { applications, httpClient, validate } from 'ronsel';
+import type { Context, Flow, Parameters } from 'ronsel';
 
 /**
  * Says hello. Runs entirely offline, so it works before the application

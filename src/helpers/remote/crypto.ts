@@ -24,6 +24,8 @@ import {
  * what the person's side stores next to the agent's name.
  */
 
+// Kept from before the rename on purpose: it is part of the wire format, and
+// changing it would stop an agent and a UI of different versions talking.
 const INFO = 'lab34-flows remote env v1';
 
 /** What a sealed document looks like on the wire. */

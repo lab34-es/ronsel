@@ -32,19 +32,19 @@ keywords:
   - 'version'
 ---
 
-    npm install -g @lab34/flows
+    npm install -g ronsel
 
-    lab34-flows --server [--context <folder>]
-    lab34-flows --file <flow.md> --env <environment>
-    lab34-flows --view <view> --env <environment> [--folder <folder>]
-    lab34-flows --import-env <env.yaml> [--view <view> --env <environment>] [--dry-run]
-    lab34-flows --capabilities
-    lab34-flows --agent --agent-id <name> [--broker <url> --username <user> --password <secret>]
-    lab34-flows --remote <agent> --file <flow.md> --env <environment>
+    ronsel --server [--context <folder>]
+    ronsel --file <flow.md> --env <environment>
+    ronsel --view <view> --env <environment> [--folder <folder>]
+    ronsel --import-env <env.yaml> [--view <view> --env <environment>] [--dry-run]
+    ronsel --capabilities
+    ronsel --agent --agent-id <name> [--broker <url> --username <user> --password <secret>]
+    ronsel --remote <agent> --file <flow.md> --env <environment>
 
 | Flag | What it does |
 |-|-|
-| `--context` | The context folder. Defaults to `~/lab34-flows`. Every other path is resolved against it. |
+| `--context` | The context folder. Defaults to `~/ronsel` (or `~/lab34-flows`, from before the rename, while it is the only one). Every other path is resolved against it. |
 | `--server` | Start the web UI on http://localhost:3001. |
 | `--file` | Run one flow. The path is relative to the context: `flows/checkout/refund.md`. |
 | `--view` | Run every flow a saved view matches, as one test run. The name or the slug of a view of `views.yaml`. |
@@ -64,7 +64,7 @@ configured there, and the CLI has no flag for it.
 
 ## Running one flow
 
-    lab34-flows --context ~/projects/shop/e2e --file flows/checkout/refund.md --env uat
+    ronsel --context ~/projects/shop/e2e --file flows/checkout/refund.md --env uat
 
 The steps are printed as they run, with their request, response and
 assertions, and the run is recorded under `test-runs/` exactly as one from
@@ -72,7 +72,7 @@ the UI. The command exits with `0` when the flow passed and `1` otherwise.
 
 ## Running a view
 
-    lab34-flows --context ~/projects/shop/e2e --view smoke --env uat
+    ronsel --context ~/projects/shop/e2e --view smoke --env uat
 
 `--view` runs every flow a saved view matches, one after the other, as a
 single test run. The **CLI** button of a folder view writes the exact command
@@ -93,7 +93,7 @@ Env files hold secrets, so they are not in the repository a pipeline clones.
 exports and writes its values into the context's env files **before any flow
 runs**:
 
-    lab34-flows --context . --import-env env.yaml --view smoke --env uat
+    ronsel --context . --import-env env.yaml --view smoke --env uat
 
 The path is resolved against the working directory first and the context
 second. Missing files are created, existing ones keep everything the document
@@ -124,11 +124,11 @@ repository and the export stored as the secret `FLOWS_ENV_UAT`:
           - uses: actions/setup-node@v4
             with:
               node-version: 24
-          - run: npm install -g @lab34/flows
+          - run: npm install -g ronsel
           - run: printf '%s' "$FLOWS_ENV" > env.yaml
             env:
               FLOWS_ENV: ${{ secrets.FLOWS_ENV_UAT }}
-          - run: lab34-flows --context e2e --import-env env.yaml --view smoke --env uat
+          - run: ronsel --context e2e --import-env env.yaml --view smoke --env uat
           - uses: actions/upload-artifact@v4
             if: always()
             with:
@@ -143,7 +143,7 @@ keep the report.
 
 ## Remote
 
-    lab34-flows --remote agent-ourense --view smoke --env uat
+    ronsel --remote agent-ourense --view smoke --env uat
 
 runs the view on a machine that can reach the systems under test, and prints
 and records the run here as if it had run locally. See
