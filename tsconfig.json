@@ -44,5 +44,5 @@
     "types": ["node", "jest"]
   },
   "include": ["src/**/*.ts", "tests/**/*.ts"],
-  "exclude": ["node_modules", "dist", "frontend", "website", ".claude", "src/defaults"]
+  "exclude": ["node_modules", "dist", "frontend", ".claude", "src/defaults"]
 }

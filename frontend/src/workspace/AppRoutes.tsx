@@ -17,9 +17,6 @@ import XraySettings from '@/components/settings/XraySettings';
 import SharepointSettings from '@/components/settings/SharepointSettings';
 import RemoteSettings from '@/components/settings/RemoteSettings';
 import UiSettings from '@/components/settings/UiSettings';
-import HelpPage from '@/pages/HelpPage';
-import HelpIndex from '@/components/help/HelpIndex';
-import HelpArticle from '@/components/help/HelpArticle';
 
 /**
  * The route table of the app. Every workspace tab runs its own router over
@@ -49,10 +46,6 @@ export function AppRoutes() {
         <Route path="sharepoint" element={<SharepointSettings />} />
         <Route path="remote" element={<RemoteSettings />} />
         <Route path="ui" element={<UiSettings />} />
-      </Route>
-      <Route path="/help" element={<HelpPage />}>
-        <Route index element={<HelpIndex />} />
-        <Route path=":topicId" element={<HelpArticle />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
