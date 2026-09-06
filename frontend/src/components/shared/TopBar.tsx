@@ -18,7 +18,7 @@ import { useAppState } from '@/context/AppStateContext';
 import { useActiveLocation, useWorkspace } from '@/workspace/WorkspaceContext';
 
 /** Where the documentation lives. The tool carries no help of its own. */
-const DOCS = 'https://flows.lab34.es/docs/';
+const DOCS = 'https://ronsel.lab34.es/docs/';
 
 /* The bar over every page. On the left, which folder the app is working in
    and its git state; on the right, the three controls that belong to the whole
@@ -91,7 +91,7 @@ export function TopBar() {
             href={DOCS}
             target="_blank"
             rel="noreferrer"
-            title="How flows, steps and applications work (opens flows.lab34.es)"
+            title="How flows, steps and applications work (opens ronsel.lab34.es)"
           >
             <CircleHelp /> Help
           </a>
