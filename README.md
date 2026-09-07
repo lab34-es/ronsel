@@ -98,6 +98,22 @@ test:
 Requires Node.js `>= 24.0.0` (the current active LTS line).
 
 ```bash
+npx ronsel start   # in the folder the flows should live in
+```
+
+That turns the folder into a project: a context with the example flows and
+applications, and a `package.json` that depends on ronsel and carries the
+command as a script. From then on -- for you, and for anybody who clones the
+folder -- the whole thing is:
+
+```bash
+npm install
+npm run ronsel
+```
+
+Nothing has to be installed globally. If you would rather have it on the PATH:
+
+```bash
 npm install -g ronsel
 ```
 
@@ -116,6 +132,7 @@ walkthrough.
 ## Usage
 
 ```bash
+ronsel start                                     # make this folder a ronsel project, and start
 ronsel                                           # web UI on http://localhost:3001
 ronsel --context ~/my-flows                      # ... on another folder
 ronsel --file flows/my-flow.md --env production  # run a flow headlessly
@@ -125,6 +142,13 @@ ronsel --capabilities                            # list available applications a
 ronsel --version                                 # print the installed version
 ronsel --help
 ```
+
+`ronsel start` is the first command: it furnishes the folder, writes the
+`package.json` that pins this version and carries `npm run ronsel`, runs
+`npm install` and then starts the UI. Everything it writes is additive -- an
+existing `package.json` keeps its formatting and every key it had, and the
+examples are seeded once and never restored. `--no-install` writes the files
+and leaves the install to somebody else.
 
 Told nothing to run, `ronsel` starts the web UI. Everything it reads and
 writes — flows, applications, environments, test runs — lives in one folder,

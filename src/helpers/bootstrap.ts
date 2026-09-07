@@ -174,82 +174,90 @@ const ensureTypeScriptConfig = async () => {
 };
 
 /**
+ * Furnish the context directory: the folders, the tsconfig and the
+ * bundled examples.
+ *
+ * Copies are conservative: an example is only copied when its destination does
+ * not exist yet, and the whole seeding is skipped once the marker is there, so
+ * a folder somebody has since pruned is never refilled behind their back.
+ */
+const seed = async () => {
+  // Make sure the base folders exist
+  const applicationsDir = await paths.contextDir(['applications']);
+  const flowsDir = await paths.contextDir(['flows']);
+  fs.mkdirSync(applicationsDir, { recursive: true });
+  fs.mkdirSync(flowsDir, { recursive: true });
+
+  // Refreshed every start, unlike the examples below
+  await ensureTypeScriptConfig();
+
+  const markerPath = await paths.contextDir(['.examples-seeded']);
+
+  // The examples are a starting point, not a set of files we keep restoring:
+  // once they have been laid down, this folder is the user's
+  if (fs.existsSync(markerPath)) { return; }
+
+  // Example applications: copy each app folder if missing
+  const defaultAppsDir = path.join(DEFAULTS_DIR, 'applications');
+  if (fs.existsSync(defaultAppsDir)) {
+    for (const appName of fs.readdirSync(defaultAppsDir)) {
+      const source = path.join(defaultAppsDir, appName);
+      if (!fs.statSync(source).isDirectory()) { continue; }
+
+      const destination = path.join(applicationsDir, appName);
+      if (fs.existsSync(destination)) { continue; }
+
+      fs.cpSync(source, destination, { recursive: true });
+      console.log(`Seeded example application: ${appName}`);
+    }
+  }
+
+  // Example flows: copy each file if missing (keeping folder structure)
+  const defaultFlowsDir = path.join(DEFAULTS_DIR, 'flows');
+  if (fs.existsSync(defaultFlowsDir)) {
+    const copyFlows = (dir, relative = '') => {
+      for (const item of fs.readdirSync(dir)) {
+        const source = path.join(dir, item);
+        const itemRelative = path.join(relative, item);
+
+        if (fs.statSync(source).isDirectory()) {
+          copyFlows(source, itemRelative);
+          continue;
+        }
+
+        const destination = path.join(flowsDir, itemRelative);
+        if (fs.existsSync(destination)) { continue; }
+
+        fs.mkdirSync(path.dirname(destination), { recursive: true });
+        fs.copyFileSync(source, destination);
+        console.log(`Seeded example flow: ${itemRelative}`);
+      }
+    };
+
+    copyFlows(defaultFlowsDir);
+  }
+
+  fs.writeFileSync(markerPath, JSON.stringify({ seededAt: new Date().toISOString() }, null, 2));
+};
+
+/**
  * Make a context out of the directory this run works in.
  *
- * Only an empty directory is furnished: it gets the `applications` and `flows`
- * folders and the bundled examples, which is what a first run needs to have
- * something to look at. A directory with anything in it is served as it is --
- * an existing context has its own flows already, and any other folder is not
- * ours to fill.
- *
- * Copies are conservative: an example is only copied when its destination
- * does not exist yet, so user modifications and deletions of individual
- * files inside an already-copied example are preserved.
+ * Only an empty directory is furnished: a directory with anything in it is
+ * served as it is -- an existing context has its own flows already, and any
+ * other folder is not ours to fill. It still gets its tsconfig refreshed, so
+ * editor support follows the installation when the package is upgraded.
  */
 const ensureDefaults = async () => {
   try {
     const root = await paths.contextDir([]);
 
-    // Nothing is created inside a directory that already holds something.
-    // An existing context still gets its tsconfig refreshed, so editor
-    // support follows the installation when the package is upgraded
     if (!isEmptyDirectory(root)) {
       await ensureTypeScriptConfig();
       return;
     }
 
-    // Make sure the base folders exist
-    const applicationsDir = await paths.contextDir(['applications']);
-    const flowsDir = await paths.contextDir(['flows']);
-    fs.mkdirSync(applicationsDir, { recursive: true });
-    fs.mkdirSync(flowsDir, { recursive: true });
-
-    // Refreshed every start, unlike the examples below
-    await ensureTypeScriptConfig();
-
-    const markerPath = await paths.contextDir(['.examples-seeded']);
-
-    // Example applications: copy each app folder if missing
-    const defaultAppsDir = path.join(DEFAULTS_DIR, 'applications');
-    if (fs.existsSync(defaultAppsDir)) {
-      for (const appName of fs.readdirSync(defaultAppsDir)) {
-        const source = path.join(defaultAppsDir, appName);
-        if (!fs.statSync(source).isDirectory()) { continue; }
-
-        const destination = path.join(applicationsDir, appName);
-        if (fs.existsSync(destination)) { continue; }
-
-        fs.cpSync(source, destination, { recursive: true });
-        console.log(`Seeded example application: ${appName}`);
-      }
-    }
-
-    // Example flows: copy each file if missing (keeping folder structure)
-    const defaultFlowsDir = path.join(DEFAULTS_DIR, 'flows');
-    if (fs.existsSync(defaultFlowsDir)) {
-      const copyFlows = (dir, relative = '') => {
-        for (const item of fs.readdirSync(dir)) {
-          const source = path.join(dir, item);
-          const itemRelative = path.join(relative, item);
-
-          if (fs.statSync(source).isDirectory()) {
-            copyFlows(source, itemRelative);
-            continue;
-          }
-
-          const destination = path.join(flowsDir, itemRelative);
-          if (fs.existsSync(destination)) { continue; }
-
-          fs.mkdirSync(path.dirname(destination), { recursive: true });
-          fs.copyFileSync(source, destination);
-          console.log(`Seeded example flow: ${itemRelative}`);
-        }
-      };
-
-      copyFlows(defaultFlowsDir);
-    }
-
-    fs.writeFileSync(markerPath, JSON.stringify({ seededAt: new Date().toISOString() }, null, 2));
+    await seed();
   }
   catch (ex) {
     // Seeding must never prevent the tool from starting
@@ -257,8 +265,28 @@ const ensureDefaults = async () => {
   }
 };
 
+/**
+ * Furnish the directory whether or not it is empty.
+ *
+ * This is what `ronsel start` does, and the difference from `ensureDefaults` is
+ * the whole point of that command: somebody typed it to say "make this folder
+ * mine", which answers the question the emptiness rule exists to avoid asking.
+ * Seeding still happens once and only once, so running it again in a folder
+ * that is already a context adds the missing scaffolding and nothing else.
+ */
+const initialise = async () => {
+  try {
+    await seed();
+  }
+  catch (ex) {
+    console.error('Could not seed default examples:', ex.message);
+  }
+};
+
 export {
   ensureDefaults,
+  initialise,
   ensureTypeScriptConfig,
-  isEmptyDirectory
+  isEmptyDirectory,
+  isContextDirectory
 };

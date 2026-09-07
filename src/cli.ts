@@ -9,6 +9,7 @@ import * as applications from './helpers/applications';
  * A command-line interface for running Markdown flow definitions.
  * 
  * Usage:
+ *   node cli.js start [--context <dir>] [--no-install]
  *   node cli.js [--context <dir>]
  *   node cli.js --file <path-to-flow-file> --env <environment> [--debug] [--help]
  *   node cli.js --view <view> --env <environment> [--folder <folder>]
@@ -20,6 +21,11 @@ import * as applications from './helpers/applications';
  * Named nothing to run, the command starts the web UI: somebody who did not
  * ask for a flow is here to look at them.
  *
+ * Commands:
+ *   start          Make this directory a project of its own -- a context with
+ *                  a package.json that depends on this tool and carries the
+ *                  command as a script -- and then start the UI on it
+ *
  * Options:
  *   --file         Path to the flow definition file (.md)
  *   --view         Name (or slug) of a view of views.yaml: every flow it
@@ -27,6 +33,7 @@ import * as applications from './helpers/applications';
  *   --folder       Folder of the flows tree the view is scoped to
  *   --context      Context directory. Without it the directory the command
  *                  was run from is used, after asking
+ *   --no-install   With `start`, write the files but do not run npm install
  *   --import-env   Path of a YAML export of environment variables: its values
  *                  are written into the context's env files before anything
  *                  runs
@@ -44,6 +51,7 @@ import * as applications from './helpers/applications';
  * API keys are configured.
  *
  * Examples:
+ *   node cli.js start
  *   node cli.js
  *   node cli.js --file flows/my-flow.md --env production
  *   node cli.js --view smoke-tests --env production
@@ -55,6 +63,7 @@ process.env.NODE_NO_HTTP2 = '1';
 
 // Core dependencies
 import fs from 'fs';
+import path from 'path';
 import yargsParser from 'yargs-parser';
 
 const argv = yargsParser(process.argv.slice(2));
@@ -68,6 +77,7 @@ import * as flows from './helpers/flows';
 import * as testRuns from './helpers/testRuns';
 import * as bases from './helpers/bases';
 import * as envTransfer from './helpers/envTransfer';
+import * as project from './helpers/project';
 
 /**
  * Print error message and exit with error code
@@ -87,6 +97,7 @@ function showHelp() {
 Ronsel CLI Tool v${packageJson.version}
 
 Usage:
+  ronsel start [--context <context>] [--no-install]
   ronsel [--context <context>]
   ronsel --file <path-to-flow-file> --env <environment> [--debug] [--help]
   ronsel --view <view> --env <environment> [--folder <folder>]
@@ -96,7 +107,16 @@ Usage:
   ronsel --remote <agent> --view <view> --env <environment>
 
 Told nothing to run, ronsel starts the web UI on the context -- which is the
-whole of the first form above.
+whole of the second form above.
+
+Commands:
+  start           Make this directory a project of its own. It becomes a
+                  context -- flows, applications and, if it was empty, the
+                  examples -- and gets a package.json that depends on this
+                  exact version of the tool and carries the command as a
+                  script. npm install runs, and the UI starts. From then on
+                  the whole thing is "npm run ronsel", for anybody who clones
+                  the folder, with nothing installed globally
 
 Options:
   --file          Path to the flow definition file (.md markdown flow)
@@ -132,6 +152,8 @@ Options:
                   Stored in config/remote.json the first time, with --username;
                   --password goes to the context's .env. FLOWS_BROKER_URL,
                   FLOWS_BROKER_USERNAME and FLOWS_BROKER_PASSWORD work too
+  --no-install    With "start", write the files and skip the npm install --
+                  useful when the folder is installed by something else
   --debug         Print debug information including environment variables
   --version, -v   Print the installed version and exit
   --help          Show this help message
@@ -140,6 +162,8 @@ Generating flows with AI is done from the web UI: the provider, model and API
 keys are configured there, under Settings.
 
 Examples:
+  ronsel start
+  ronsel start --context my/new/folder
   ronsel
   ronsel --context my/context/folder
   ronsel --context my/context/folder --file flows/my-flow.md --env production
@@ -202,7 +226,14 @@ function printDebugInfo() {
  * @returns {Object} Parsed arguments
  */
 function parseArguments() {
+  // The first positional, when there is one: this CLI is flags all the way
+  // down except for `start`, which is a thing to do rather than a thing to run
+  const positional = (argv._ || []).map(value => String(value));
+
   return {
+    command: positional[0] || null,
+    // yargs-parser reads `--no-install` as install: false
+    install: argv.install !== false,
     file: argv.file || null,
     // `--view` on its own means "the first view of views.yaml"
     view: argv.view === undefined ? null : (typeof argv.view === 'string' ? argv.view : ''),
@@ -402,6 +433,100 @@ async function startServer() {
 }
 
 /**
+ * Make this directory a project of its own, then start the UI on it.
+ *
+ * A context is only a folder of flows and applications, which is why the tool
+ * can be pointed at any directory -- but a folder alone does not say how to
+ * run itself. `start` writes that down: a package.json that depends on this
+ * exact version and carries the command as a script, so what took `npx ronsel`
+ * and an explanation becomes `npm install && npm run ronsel` for whoever
+ * clones the folder next, with nothing installed globally and nothing to know.
+ *
+ * Everything it writes is additive. An existing package.json keeps its
+ * formatting and every key it had; a `ronsel` script that is already there is
+ * reported and left alone; the examples are seeded once and never restored.
+ *
+ * @param {Object} args - { context, install }
+ */
+async function startProject(args) {
+  const directory = args.context
+    ? path.resolve(process.cwd(), args.context)
+    : process.cwd();
+
+  cli.logo(packageJson.version);
+  console.log('');
+
+  // A folder with somebody else's work in it is not obviously ours to furnish,
+  // even having been told to: ask, when there is anybody to ask
+  if (!bootstrap.isContextDirectory(directory)) {
+    const question = `${directory} already holds other files. Set it up as a ronsel project anyway?`;
+
+    if (cli.isInteractive) {
+      if (!await cli.confirm(question)) {
+        console.log('Nothing done. Name an empty folder with --context <directory>.');
+        process.exit(0);
+        return;
+      }
+    }
+    else {
+      console.log(`${directory} already holds other files, and is being set up as a ronsel project.`);
+    }
+  }
+
+  fs.mkdirSync(directory, { recursive: true });
+  paths.useContext(directory);
+
+  console.log(`Project: ${directory}`);
+
+  // The folders, the tsconfig and -- first time only -- the examples
+  await bootstrap.initialise();
+
+  let manifest;
+  try {
+    manifest = project.ensurePackageJson({ directory, version: packageJson.version });
+  }
+  catch (error) {
+    exitWithError(error.message);
+    return;
+  }
+
+  const written = [...manifest.changes, ...project.ensureGitignore(directory)];
+  written.forEach(line => console.log(`  ${line}`));
+  if (!written.length) { console.log('  already set up: nothing to write'); }
+
+  if (manifest.scriptTaken) {
+    console.log(`  note: package.json already has a "${project.SCRIPT_NAME}" script, left as it is`);
+    console.log(`        the command it should run is: ${project.RUN_SCRIPT}`);
+  }
+
+  if (args.install) {
+    console.log('');
+    try {
+      await project.install(directory);
+    }
+    catch (error) {
+      // The files are written and the folder is a context: this is worth
+      // saying plainly, but it is not worth throwing the setup away over
+      console.error(`\nCould not install the dependencies: ${error.message}`);
+      console.error(`Run "npm install" in ${directory} and then "npm run ${project.SCRIPT_NAME}".`);
+      process.exit(1);
+      return;
+    }
+  }
+
+  console.log('');
+  console.log(`Done. From now on, in this folder:  npm run ${project.SCRIPT_NAME}`);
+
+  if (!args.install && !project.isInstalled(directory)) {
+    console.log('Run "npm install" first -- this run skipped it.');
+  }
+
+  console.log('');
+
+  await startServer();
+}
+
+/**
  * Run as an agent: sit on the broker and run the flows other machines send.
  *
  * Nothing about the flows themselves changes on this side -- they run through
@@ -588,6 +713,18 @@ async function main() {
   // Show debug information if requested
   if (args.debug) {
     printDebugInfo();
+  }
+
+  // `start` is the one thing this CLI is told to do rather than to run, and it
+  // settles the context itself -- it is the command that creates one
+  if (args.command === 'start') {
+    await startProject(args);
+    return;
+  }
+
+  if (args.command) {
+    exitWithError(`Unknown command: ${args.command}. The only one is "start" -- see "ronsel --help"`);
+    return;
   }
 
   // --dry-run belongs to the import, not to the flows: on its own it would

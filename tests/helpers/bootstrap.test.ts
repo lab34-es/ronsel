@@ -113,6 +113,51 @@ describe('bootstrap.ensureDefaults', () => {
   });
 });
 
+describe('bootstrap.initialise', () => {
+  test('furnishes a folder that already holds something: the person asked for it', async () => {
+    fs.writeFileSync(path.join(ctx, 'notes.txt'), 'mine');
+
+    await bootstrap.initialise();
+
+    expect(fs.existsSync(path.join(ctx, 'flows', 'examples', '01-welcome.md'))).toBe(true);
+    expect(fs.existsSync(path.join(ctx, 'applications', 'calculator'))).toBe(true);
+    expect(fs.existsSync(path.join(ctx, 'tsconfig.json'))).toBe(true);
+  });
+
+  test('a context that has been pruned is not refilled', async () => {
+    await bootstrap.initialise();
+    fs.rmSync(path.join(ctx, 'applications', 'calculator'), { recursive: true, force: true });
+
+    await bootstrap.initialise();
+
+    expect(fs.existsSync(path.join(ctx, 'applications', 'calculator'))).toBe(false);
+    // The scaffolding it does still keep is there
+    expect(fs.existsSync(path.join(ctx, 'flows'))).toBe(true);
+  });
+
+  test('never throws: the rest of the setup is still worth doing', async () => {
+    (paths.contextDir as jest.Mock).mockRejectedValue(new Error('no context'));
+
+    await expect(bootstrap.initialise()).resolves.toBeUndefined();
+    expect(console.error).toHaveBeenCalledWith('Could not seed default examples:', 'no context');
+  });
+});
+
+describe('bootstrap.isContextDirectory', () => {
+  test('an empty folder is one, and so is a folder with flows in it', () => {
+    expect(bootstrap.isContextDirectory(ctx)).toBe(true);
+
+    fs.mkdirSync(path.join(ctx, 'flows'));
+    expect(bootstrap.isContextDirectory(ctx)).toBe(true);
+  });
+
+  test('somebody else\'s folder is not', () => {
+    fs.writeFileSync(path.join(ctx, 'notes.txt'), 'mine');
+
+    expect(bootstrap.isContextDirectory(ctx)).toBe(false);
+  });
+});
+
 describe('bootstrap.ensureTypeScriptConfig', () => {
   const read = () => fs.readFileSync(path.join(ctx, 'tsconfig.json'), 'utf8');
 
