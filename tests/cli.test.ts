@@ -22,8 +22,28 @@ jest.mock('../src/helpers/envTransfer', () => ({
   reportLines: jest.fn(() => ['  created applications/payments/env/uat.env — 2 added'])
 }));
 jest.mock('../src/helpers/reporter', () => ({ get: jest.fn(() => ({ server: { emit: jest.fn() } })) }));
-jest.mock('../src/helpers/cli', () => ({ logo: jest.fn(), wisdom: jest.fn(), isInteractive: false }));
-jest.mock('../src/helpers/bootstrap', () => ({ ensureTypeScriptConfig: jest.fn().mockResolvedValue(undefined) }));
+// Whether anybody is there to answer the context question. Read on every
+// call, so a case can turn the terminal on and off.
+let INTERACTIVE = false;
+jest.mock('../src/helpers/cli', () => ({
+  logo: jest.fn(),
+  wisdom: jest.fn(),
+  confirm: jest.fn(),
+  get isInteractive() { return INTERACTIVE; }
+}));
+jest.mock('../src/helpers/bootstrap', () => ({
+  ensureTypeScriptConfig: jest.fn().mockResolvedValue(undefined),
+  initialise: jest.fn().mockResolvedValue(undefined),
+  isEmptyDirectory: jest.fn(() => false),
+  isContextDirectory: jest.fn(() => true)
+}));
+jest.mock('../src/helpers/project', () => ({
+  ...jest.requireActual('../src/helpers/project'),
+  ensurePackageJson: jest.fn(),
+  ensureGitignore: jest.fn(() => []),
+  isInstalled: jest.fn(() => true),
+  install: jest.fn().mockResolvedValue(undefined)
+}));
 jest.mock('../src/helpers/remote/config', () => ({
   agentIdentity: jest.fn(),
   brokerSettings: jest.fn()
@@ -46,6 +66,8 @@ jest.mock('child_process', () => ({ ...jest.requireActual('child_process'), spaw
 import fs from 'fs';
 
 import * as paths from '../src/helpers/paths';
+import * as cliHelper from '../src/helpers/cli';
+import * as bootstrap from '../src/helpers/bootstrap';
 import * as applications from '../src/helpers/applications';
 import * as flows from '../src/helpers/flows';
 import * as markdownFlows from '../src/helpers/markdownFlows';
@@ -53,6 +75,7 @@ import * as runner from '../src/helpers/runner/v1';
 import * as testRuns from '../src/helpers/testRuns';
 import * as bases from '../src/helpers/bases';
 import * as envTransfer from '../src/helpers/envTransfer';
+import * as project from '../src/helpers/project';
 import * as api from '../src/api';
 import * as remoteConfig from '../src/helpers/remote/config';
 import * as remoteBroker from '../src/helpers/remote/broker';
@@ -72,6 +95,16 @@ const errored = () => (console.error as jest.Mock).mock.calls.map(c => c.join(' 
 beforeEach(() => {
   jest.clearAllMocks();
   ARGV = {};
+  // Nobody is watching unless the case says otherwise, so nothing is ever
+  // asked and the working directory is taken as the context
+  INTERACTIVE = false;
+  (bootstrap.isEmptyDirectory as jest.Mock).mockReturnValue(false);
+  (bootstrap.isContextDirectory as jest.Mock).mockReturnValue(true);
+  (project.ensurePackageJson as jest.Mock).mockReturnValue({
+    path: '/ctx/package.json', created: true, changes: ['created package.json'], scriptTaken: false
+  });
+  (project.ensureGitignore as jest.Mock).mockReturnValue([]);
+  (project.isInstalled as jest.Mock).mockReturnValue(true);
   (paths.contextDir as jest.Mock).mockImplementation(async (p: string) => `/ctx/${p}`);
   (applications.loadAll as jest.Mock).mockResolvedValue(undefined);
   (flows.listCapabilities as jest.Mock).mockResolvedValue(undefined);
@@ -115,7 +148,7 @@ describe('cli --v and --help', () => {
     ARGV = { help: true };
     await runCli();
     expect(logged()).toContain('Ronsel CLI Tool');
-    expect(logged()).toContain('--server');
+    expect(logged()).toContain('--context');
     expect(process.exit).toHaveBeenCalledWith(0);
   });
 });
@@ -152,9 +185,17 @@ describe('cli --ai', () => {
   });
 });
 
-describe('cli --server', () => {
-  test('starts the API', async () => {
-    ARGV = { server: true };
+describe('cli with nothing to run', () => {
+  test('starts the API: whoever typed it came to look at the flows', async () => {
+    ARGV = {};
+
+    await runCli();
+
+    expect(api.start).toHaveBeenCalled();
+  });
+
+  test('starts it on the context it was given, too', async () => {
+    ARGV = { context: 'my/context' };
 
     await runCli();
 
@@ -164,11 +205,183 @@ describe('cli --server', () => {
   // The UI ships pre-built inside the package: an installed copy has neither
   // the frontend sources nor a working directory it could build them from.
   test('never shells out to build the frontend', async () => {
-    ARGV = { server: true };
+    ARGV = {};
 
     await runCli();
 
     expect(spawn).not.toHaveBeenCalled();
+  });
+});
+
+
+describe('cli start', () => {
+  beforeEach(() => {
+    jest.spyOn(fs, 'mkdirSync').mockImplementation(() => undefined);
+  });
+
+  test('furnishes the folder, writes the project and starts the UI on it', async () => {
+    ARGV = { _: ['start'] };
+
+    await runCli();
+
+    expect(bootstrap.initialise).toHaveBeenCalled();
+    expect(project.ensurePackageJson)
+      .toHaveBeenCalledWith({ directory: process.cwd(), version: expect.any(String) });
+    expect(project.ensureGitignore).toHaveBeenCalledWith(process.cwd());
+    expect(project.install).toHaveBeenCalledWith(process.cwd());
+    expect(paths.useContext).toHaveBeenCalledWith(process.cwd());
+    expect(api.start).toHaveBeenCalled();
+    expect(logged()).toContain('npm run ronsel');
+  });
+
+  test('--context names the folder, and it is created if it is not there', async () => {
+    ARGV = { _: ['start'], context: 'somewhere/new' };
+
+    await runCli();
+
+    const directory = require('path').resolve(process.cwd(), 'somewhere/new');
+    expect(fs.mkdirSync).toHaveBeenCalledWith(directory, { recursive: true });
+    expect(project.ensurePackageJson)
+      .toHaveBeenCalledWith({ directory, version: expect.any(String) });
+  });
+
+  test('--no-install writes everything and leaves the install to somebody else', async () => {
+    ARGV = { _: ['start'], install: false };
+    (project.isInstalled as jest.Mock).mockReturnValue(false);
+
+    await runCli();
+
+    expect(project.install).not.toHaveBeenCalled();
+    expect(logged()).toContain('Run "npm install" first');
+    expect(api.start).toHaveBeenCalled();
+  });
+
+  test('a folder holding somebody else\'s work is asked about, and no is no', async () => {
+    ARGV = { _: ['start'] };
+    INTERACTIVE = true;
+    (bootstrap.isContextDirectory as jest.Mock).mockReturnValue(false);
+    (cliHelper.confirm as jest.Mock).mockResolvedValue(false);
+
+    await runCli();
+
+    expect(cliHelper.confirm).toHaveBeenCalledWith(expect.stringContaining('already holds other files'));
+    expect(project.ensurePackageJson).not.toHaveBeenCalled();
+    expect(api.start).not.toHaveBeenCalled();
+    expect(process.exit).toHaveBeenCalledWith(0);
+  });
+
+  test('a run nobody is watching says what it is doing and gets on with it', async () => {
+    ARGV = { _: ['start'] };
+    (bootstrap.isContextDirectory as jest.Mock).mockReturnValue(false);
+
+    await runCli();
+
+    expect(cliHelper.confirm).not.toHaveBeenCalled();
+    expect(project.ensurePackageJson).toHaveBeenCalled();
+  });
+
+  test('a "ronsel" script that is already theirs is reported, and the run goes on', async () => {
+    ARGV = { _: ['start'] };
+    (project.ensurePackageJson as jest.Mock).mockReturnValue({
+      path: '/ctx/package.json', created: false, changes: [], scriptTaken: true
+    });
+
+    await runCli();
+
+    expect(logged()).toContain('left as it is');
+    expect(logged()).toContain('already set up: nothing to write');
+    expect(api.start).toHaveBeenCalled();
+  });
+
+  test('a package.json that cannot be read stops it before anything is installed', async () => {
+    ARGV = { _: ['start'] };
+    (project.ensurePackageJson as jest.Mock).mockImplementation(() => {
+      throw new Error('/ctx/package.json is not valid JSON');
+    });
+
+    await runCli();
+
+    expect(errored()).toContain('is not valid JSON');
+    expect(project.install).not.toHaveBeenCalled();
+    expect(api.start).not.toHaveBeenCalled();
+  });
+
+  test('an install that fails leaves the files behind and says how to finish', async () => {
+    ARGV = { _: ['start'] };
+    (project.install as jest.Mock).mockRejectedValue(new Error('npm install exited with code 1'));
+
+    await runCli();
+
+    expect(errored()).toContain('npm install exited with code 1');
+    expect(errored()).toContain('npm run ronsel');
+    expect(api.start).not.toHaveBeenCalled();
+    expect(process.exit).toHaveBeenCalledWith(1);
+  });
+
+  test('any other word is not a command', async () => {
+    ARGV = { _: ['strat'] };
+
+    await runCli();
+
+    expect(errored()).toContain('Unknown command: strat');
+    expect(api.start).not.toHaveBeenCalled();
+  });
+});
+
+describe('cli context directory', () => {
+  test('a run nobody is watching takes the working directory, saying so', async () => {
+    ARGV = {};
+
+    await runCli();
+
+    expect(cliHelper.confirm).not.toHaveBeenCalled();
+    expect(paths.useContext).toHaveBeenCalledWith(process.cwd());
+    expect(logged()).toContain(`Context directory: ${process.cwd()}`);
+  });
+
+  test('--context is taken as given, without asking', async () => {
+    ARGV = { context: 'my/context' };
+
+    await runCli();
+
+    expect(cliHelper.confirm).not.toHaveBeenCalled();
+    expect(paths.useContext).not.toHaveBeenCalled();
+  });
+
+  test('asks before working in the directory it was run from', async () => {
+    ARGV = {};
+    INTERACTIVE = true;
+    (cliHelper.confirm as jest.Mock).mockResolvedValue(true);
+
+    await runCli();
+
+    expect(cliHelper.confirm).toHaveBeenCalledWith(expect.stringContaining(process.cwd()));
+    expect(paths.useContext).toHaveBeenCalledWith(process.cwd());
+    expect(api.start).toHaveBeenCalled();
+  });
+
+  test('says the empty directory is about to get the examples', async () => {
+    ARGV = {};
+    INTERACTIVE = true;
+    (cliHelper.confirm as jest.Mock).mockResolvedValue(true);
+    (bootstrap.isEmptyDirectory as jest.Mock).mockReturnValue(true);
+
+    await runCli();
+
+    expect(cliHelper.confirm).toHaveBeenCalledWith(expect.stringContaining('It is empty'));
+  });
+
+  test('a no stops everything, and says how to name another folder', async () => {
+    ARGV = {};
+    INTERACTIVE = true;
+    (cliHelper.confirm as jest.Mock).mockResolvedValue(false);
+
+    await runCli();
+
+    expect(paths.useContext).not.toHaveBeenCalled();
+    expect(api.start).not.toHaveBeenCalled();
+    expect(logged()).toContain('--context <directory>');
+    expect(process.exit).toHaveBeenCalledWith(0);
   });
 });
 
@@ -457,12 +670,15 @@ describe('cli --import-env', () => {
     expect(testRuns.runViewFromCli).not.toHaveBeenCalled();
   });
 
-  test('an import before the UI starts is an import, then the UI', async () => {
-    ARGV = { 'import-env': 'env.yaml', server: true };
+  // A pipeline that only loads its credentials must come back, not sit on a
+  // web server nobody asked for
+  test('a document on its own imports and exits, without starting the UI', async () => {
+    ARGV = { 'import-env': 'env.yaml' };
     await runCli();
 
     expect(envTransfer.importFile).toHaveBeenCalled();
-    expect(api.start).toHaveBeenCalled();
+    expect(api.start).not.toHaveBeenCalled();
+    expect(process.exit).toHaveBeenCalledWith(0);
   });
 
   test('the help mentions it', async () => {
@@ -630,10 +846,3 @@ describe('cli --remote', () => {
   });
 });
 
-describe('cli with no arguments', () => {
-  test('explains what it needs', async () => {
-    ARGV = {};
-    await runCli();
-    expect(errored()).toContain('No flow source specified');
-  });
-});

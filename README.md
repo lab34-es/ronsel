@@ -98,6 +98,22 @@ test:
 Requires Node.js `>= 24.0.0` (the current active LTS line).
 
 ```bash
+npx ronsel start   # in the folder the flows should live in
+```
+
+That turns the folder into a project: a context with the example flows and
+applications, and a `package.json` that depends on ronsel and carries the
+command as a script. From then on -- for you, and for anybody who clones the
+folder -- the whole thing is:
+
+```bash
+npm install
+npm run ronsel
+```
+
+Nothing has to be installed globally. If you would rather have it on the PATH:
+
+```bash
 npm install -g ronsel
 ```
 
@@ -116,7 +132,9 @@ walkthrough.
 ## Usage
 
 ```bash
-ronsel --server                                  # web UI on http://localhost:3001
+ronsel start                                     # make this folder a ronsel project, and start
+ronsel                                           # web UI on http://localhost:3001
+ronsel --context ~/my-flows                      # ... on another folder
 ronsel --file flows/my-flow.md --env production  # run a flow headlessly
 ronsel --view smoke-tests --env production       # run every flow a saved view matches
 ronsel --import-env env.yaml --view smoke --env uat  # load the env variables, then run
@@ -124,6 +142,20 @@ ronsel --capabilities                            # list available applications a
 ronsel --version                                 # print the installed version
 ronsel --help
 ```
+
+`ronsel start` is the first command: it furnishes the folder, writes the
+`package.json` that pins this version and carries `npm run ronsel`, runs
+`npm install` and then starts the UI. Everything it writes is additive -- an
+existing `package.json` keeps its formatting and every key it had, and the
+examples are seeded once and never restored. `--no-install` writes the files
+and leaves the install to somebody else.
+
+Told nothing to run, `ronsel` starts the web UI. Everything it reads and
+writes — flows, applications, environments, test runs — lives in one folder,
+the *context*: either the one `--context` names, or the directory the command
+was run from, which it asks about before settling on it. An empty directory is
+furnished with the example flows and applications on that first start; a
+directory with anything already in it is served exactly as it is.
 
 A `--view` is an scopped list of flows that matches criterias you specify via the UI.
 You can get the exact cli command to run scopped filters via the UI.

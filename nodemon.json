@@ -3,7 +3,7 @@
   "ext": "ts,json",
   "ignore": ["src/defaults/**"],
   "exec": "tsx src/api.ts",
-  "args": [],
+  "args": ["--context", ".dev-context"],
   "env": {
     "FLOWS_DEV": "1"
   }

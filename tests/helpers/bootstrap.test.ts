@@ -72,6 +72,37 @@ describe('bootstrap.ensureDefaults', () => {
     expect(fs.readFileSync(path.join(dest, '01-welcome.md'), 'utf8')).toBe('# mine');
   });
 
+  test('a folder that already holds something is served as it is', async () => {
+    fs.writeFileSync(path.join(ctx, 'notes.txt'), 'mine');
+
+    await bootstrap.ensureDefaults();
+
+    expect(fs.existsSync(path.join(ctx, 'applications'))).toBe(false);
+    expect(fs.existsSync(path.join(ctx, 'flows'))).toBe(false);
+    expect(fs.existsSync(path.join(ctx, '.examples-seeded'))).toBe(false);
+    expect(fs.existsSync(path.join(ctx, 'tsconfig.json'))).toBe(false);
+  });
+
+  test('a context that is already there keeps its tsconfig up to date', async () => {
+    fs.mkdirSync(path.join(ctx, 'flows'));
+
+    await bootstrap.ensureDefaults();
+
+    // No examples: they only ever go into an empty folder
+    expect(fs.existsSync(path.join(ctx, '.examples-seeded'))).toBe(false);
+    expect(fs.existsSync(path.join(ctx, 'applications'))).toBe(false);
+    // But the editor support follows the installation
+    expect(fs.existsSync(path.join(ctx, 'tsconfig.json'))).toBe(true);
+  });
+
+  test('a folder holding only .DS_Store still counts as empty', async () => {
+    fs.writeFileSync(path.join(ctx, '.DS_Store'), '');
+
+    await bootstrap.ensureDefaults();
+
+    expect(fs.existsSync(path.join(ctx, 'flows', 'examples', '01-welcome.md'))).toBe(true);
+  });
+
   test('seeding never prevents the tool from starting', async () => {
     (paths.contextDir as jest.Mock).mockRejectedValue(new Error('no context'));
 
@@ -79,6 +110,51 @@ describe('bootstrap.ensureDefaults', () => {
     expect(console.error).toHaveBeenCalledWith(
       'Could not seed default examples:', 'no context'
     );
+  });
+});
+
+describe('bootstrap.initialise', () => {
+  test('furnishes a folder that already holds something: the person asked for it', async () => {
+    fs.writeFileSync(path.join(ctx, 'notes.txt'), 'mine');
+
+    await bootstrap.initialise();
+
+    expect(fs.existsSync(path.join(ctx, 'flows', 'examples', '01-welcome.md'))).toBe(true);
+    expect(fs.existsSync(path.join(ctx, 'applications', 'calculator'))).toBe(true);
+    expect(fs.existsSync(path.join(ctx, 'tsconfig.json'))).toBe(true);
+  });
+
+  test('a context that has been pruned is not refilled', async () => {
+    await bootstrap.initialise();
+    fs.rmSync(path.join(ctx, 'applications', 'calculator'), { recursive: true, force: true });
+
+    await bootstrap.initialise();
+
+    expect(fs.existsSync(path.join(ctx, 'applications', 'calculator'))).toBe(false);
+    // The scaffolding it does still keep is there
+    expect(fs.existsSync(path.join(ctx, 'flows'))).toBe(true);
+  });
+
+  test('never throws: the rest of the setup is still worth doing', async () => {
+    (paths.contextDir as jest.Mock).mockRejectedValue(new Error('no context'));
+
+    await expect(bootstrap.initialise()).resolves.toBeUndefined();
+    expect(console.error).toHaveBeenCalledWith('Could not seed default examples:', 'no context');
+  });
+});
+
+describe('bootstrap.isContextDirectory', () => {
+  test('an empty folder is one, and so is a folder with flows in it', () => {
+    expect(bootstrap.isContextDirectory(ctx)).toBe(true);
+
+    fs.mkdirSync(path.join(ctx, 'flows'));
+    expect(bootstrap.isContextDirectory(ctx)).toBe(true);
+  });
+
+  test('somebody else\'s folder is not', () => {
+    fs.writeFileSync(path.join(ctx, 'notes.txt'), 'mine');
+
+    expect(bootstrap.isContextDirectory(ctx)).toBe(false);
   });
 });
 
@@ -111,6 +187,14 @@ describe('bootstrap.ensureTypeScriptConfig', () => {
   test('is created by ensureDefaults too', async () => {
     await bootstrap.ensureDefaults();
     expect(fs.existsSync(path.join(ctx, 'tsconfig.json'))).toBe(true);
+  });
+
+  test('is never dropped into a folder that is not a context of ours', async () => {
+    fs.writeFileSync(path.join(ctx, 'README.md'), '# somebody else\'s project');
+
+    await bootstrap.ensureTypeScriptConfig();
+
+    expect(fs.existsSync(path.join(ctx, 'tsconfig.json'))).toBe(false);
   });
 
   test('refreshes a stale generated file, so the paths follow the install', async () => {
