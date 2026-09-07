@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/lab34-es/ronsel/compare/v1.10.0...v2.0.0) (2026-09-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* ronsel start makes a folder a project of its own ([#57](https://github.com/lab34-es/ronsel/issues/57))
+
+### Features
+
+* ronsel start makes a folder a project of its own ([#57](https://github.com/lab34-es/ronsel/issues/57)) ([5681223](https://github.com/lab34-es/ronsel/commit/568122344cdcd71b3d5f847a309626eef8a1f159))
+
 ## [1.10.0](https://github.com/lab34-es/flows/compare/v1.9.0...v1.10.0) (2026-09-03)
 
 
