@@ -22,8 +22,19 @@ jest.mock('../src/helpers/envTransfer', () => ({
   reportLines: jest.fn(() => ['  created applications/payments/env/uat.env — 2 added'])
 }));
 jest.mock('../src/helpers/reporter', () => ({ get: jest.fn(() => ({ server: { emit: jest.fn() } })) }));
-jest.mock('../src/helpers/cli', () => ({ logo: jest.fn(), wisdom: jest.fn(), isInteractive: false }));
-jest.mock('../src/helpers/bootstrap', () => ({ ensureTypeScriptConfig: jest.fn().mockResolvedValue(undefined) }));
+// Whether anybody is there to answer the context question. Read on every
+// call, so a case can turn the terminal on and off.
+let INTERACTIVE = false;
+jest.mock('../src/helpers/cli', () => ({
+  logo: jest.fn(),
+  wisdom: jest.fn(),
+  confirm: jest.fn(),
+  get isInteractive() { return INTERACTIVE; }
+}));
+jest.mock('../src/helpers/bootstrap', () => ({
+  ensureTypeScriptConfig: jest.fn().mockResolvedValue(undefined),
+  isEmptyDirectory: jest.fn(() => false)
+}));
 jest.mock('../src/helpers/remote/config', () => ({
   agentIdentity: jest.fn(),
   brokerSettings: jest.fn()
@@ -46,6 +57,8 @@ jest.mock('child_process', () => ({ ...jest.requireActual('child_process'), spaw
 import fs from 'fs';
 
 import * as paths from '../src/helpers/paths';
+import * as cliHelper from '../src/helpers/cli';
+import * as bootstrap from '../src/helpers/bootstrap';
 import * as applications from '../src/helpers/applications';
 import * as flows from '../src/helpers/flows';
 import * as markdownFlows from '../src/helpers/markdownFlows';
@@ -72,6 +85,10 @@ const errored = () => (console.error as jest.Mock).mock.calls.map(c => c.join(' 
 beforeEach(() => {
   jest.clearAllMocks();
   ARGV = {};
+  // Nobody is watching unless the case says otherwise, so nothing is ever
+  // asked and the working directory is taken as the context
+  INTERACTIVE = false;
+  (bootstrap.isEmptyDirectory as jest.Mock).mockReturnValue(false);
   (paths.contextDir as jest.Mock).mockImplementation(async (p: string) => `/ctx/${p}`);
   (applications.loadAll as jest.Mock).mockResolvedValue(undefined);
   (flows.listCapabilities as jest.Mock).mockResolvedValue(undefined);
@@ -115,7 +132,7 @@ describe('cli --v and --help', () => {
     ARGV = { help: true };
     await runCli();
     expect(logged()).toContain('Ronsel CLI Tool');
-    expect(logged()).toContain('--server');
+    expect(logged()).toContain('--context');
     expect(process.exit).toHaveBeenCalledWith(0);
   });
 });
@@ -152,9 +169,17 @@ describe('cli --ai', () => {
   });
 });
 
-describe('cli --server', () => {
-  test('starts the API', async () => {
-    ARGV = { server: true };
+describe('cli with nothing to run', () => {
+  test('starts the API: whoever typed it came to look at the flows', async () => {
+    ARGV = {};
+
+    await runCli();
+
+    expect(api.start).toHaveBeenCalled();
+  });
+
+  test('starts it on the context it was given, too', async () => {
+    ARGV = { context: 'my/context' };
 
     await runCli();
 
@@ -164,11 +189,68 @@ describe('cli --server', () => {
   // The UI ships pre-built inside the package: an installed copy has neither
   // the frontend sources nor a working directory it could build them from.
   test('never shells out to build the frontend', async () => {
-    ARGV = { server: true };
+    ARGV = {};
 
     await runCli();
 
     expect(spawn).not.toHaveBeenCalled();
+  });
+});
+
+describe('cli context directory', () => {
+  test('a run nobody is watching takes the working directory, saying so', async () => {
+    ARGV = {};
+
+    await runCli();
+
+    expect(cliHelper.confirm).not.toHaveBeenCalled();
+    expect(paths.useContext).toHaveBeenCalledWith(process.cwd());
+    expect(logged()).toContain(`Context directory: ${process.cwd()}`);
+  });
+
+  test('--context is taken as given, without asking', async () => {
+    ARGV = { context: 'my/context' };
+
+    await runCli();
+
+    expect(cliHelper.confirm).not.toHaveBeenCalled();
+    expect(paths.useContext).not.toHaveBeenCalled();
+  });
+
+  test('asks before working in the directory it was run from', async () => {
+    ARGV = {};
+    INTERACTIVE = true;
+    (cliHelper.confirm as jest.Mock).mockResolvedValue(true);
+
+    await runCli();
+
+    expect(cliHelper.confirm).toHaveBeenCalledWith(expect.stringContaining(process.cwd()));
+    expect(paths.useContext).toHaveBeenCalledWith(process.cwd());
+    expect(api.start).toHaveBeenCalled();
+  });
+
+  test('says the empty directory is about to get the examples', async () => {
+    ARGV = {};
+    INTERACTIVE = true;
+    (cliHelper.confirm as jest.Mock).mockResolvedValue(true);
+    (bootstrap.isEmptyDirectory as jest.Mock).mockReturnValue(true);
+
+    await runCli();
+
+    expect(cliHelper.confirm).toHaveBeenCalledWith(expect.stringContaining('It is empty'));
+  });
+
+  test('a no stops everything, and says how to name another folder', async () => {
+    ARGV = {};
+    INTERACTIVE = true;
+    (cliHelper.confirm as jest.Mock).mockResolvedValue(false);
+
+    await runCli();
+
+    expect(paths.useContext).not.toHaveBeenCalled();
+    expect(api.start).not.toHaveBeenCalled();
+    expect(logged()).toContain('--context <directory>');
+    expect(process.exit).toHaveBeenCalledWith(0);
   });
 });
 
@@ -457,12 +539,15 @@ describe('cli --import-env', () => {
     expect(testRuns.runViewFromCli).not.toHaveBeenCalled();
   });
 
-  test('an import before the UI starts is an import, then the UI', async () => {
-    ARGV = { 'import-env': 'env.yaml', server: true };
+  // A pipeline that only loads its credentials must come back, not sit on a
+  // web server nobody asked for
+  test('a document on its own imports and exits, without starting the UI', async () => {
+    ARGV = { 'import-env': 'env.yaml' };
     await runCli();
 
     expect(envTransfer.importFile).toHaveBeenCalled();
-    expect(api.start).toHaveBeenCalled();
+    expect(api.start).not.toHaveBeenCalled();
+    expect(process.exit).toHaveBeenCalledWith(0);
   });
 
   test('the help mentions it', async () => {
@@ -630,10 +715,3 @@ describe('cli --remote', () => {
   });
 });
 
-describe('cli with no arguments', () => {
-  test('explains what it needs', async () => {
-    ARGV = {};
-    await runCli();
-    expect(errored()).toContain('No flow source specified');
-  });
-});

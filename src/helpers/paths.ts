@@ -1,43 +1,35 @@
-import isWsl from 'is-wsl';
-import os from 'os';
 import path from 'path';
-import * as shell from './shell';
 import fs from 'fs';
 import yargsParser from 'yargs-parser';
 
 const argv = yargsParser(process.argv.slice(2));
 
-// Cache the Windows home directory when inside WSL
-let winDir;
+/**
+ * The folder this run works in, when it was not named with `--context`.
+ *
+ * There is no folder of ours in the home directory any more: without
+ * `--context` the context is the directory the command was run from, and the
+ * CLI asks before settling on it. It records the answer here so that
+ * everything downstream -- the API, the runner, the applications -- resolves
+ * against the same place.
+ */
+let chosenContext: string | null = null;
 
 /**
- * Get the Windows home directory when inside WSL
- * @returns {Promise<string>} The Windows home directory
+ * Work in this directory for the rest of the process.
+ * @param {string} directory - Absolute path of the context directory
  */
-const getWslWinHomeDir = async () => {
-  if (winDir) {return winDir;}
-  const windowsHomeRaw = await shell.run('cmd.exe /c "<nul set /p=%UserProfile%" 2>/dev/null', true);
-  winDir = await shell.run(`wslpath "${windowsHomeRaw}"`, true);
-  return winDir;
+export const useContext = (directory: string) => {
+  chosenContext = path.resolve(directory);
 };
 
-/** The default context directory, when no --context is given. */
-const defaultContextDir = (baseDir: string) => {
-  const current = path.join(baseDir, 'ronsel');
-  const legacy = path.join(baseDir, 'lab34-flows');
-  return !fs.existsSync(current) && fs.existsSync(legacy) ? legacy : current;
-};
-
-export const contextDir = async (pathParts) => {
-  const baseDir = isWsl ? await getWslWinHomeDir() : os.homedir();
+export const contextDir = async (pathParts?) => {
   let context = argv.context;
-
-  let finalPathParts: string[] = [];
 
   // Check if context argument is defined
   if (context) {
     const isAbsolute = path.isAbsolute(context);
-    
+
     if (!isAbsolute) {
       // If context is not absolute, resolve it relative to the current working directory
       context = path.resolve(process.cwd(), context);
@@ -48,16 +40,13 @@ export const contextDir = async (pathParts) => {
       console.error(`Context directory does not exist: ${context}`);
       process.exit(1);
     }
-    
-    // Use the context as base and add pathParts
-    finalPathParts = [context].concat(pathParts || []);
   } else {
-    // Use default: home folder + "ronsel" + pathParts. An installation from
-    // before the rename keeps its ~/lab34-flows until a ~/ronsel exists.
-    finalPathParts = [defaultContextDir(baseDir)].concat(pathParts || []);
+    // Whatever the CLI settled on, and the working directory for anything
+    // that reached here without going through it
+    context = chosenContext || process.cwd();
   }
 
-  const finalPath = path.join.apply(null, finalPathParts);
+  const finalPath = path.join.apply(null, [context].concat(pathParts || []));
   return finalPath;
 };
 
@@ -69,8 +58,8 @@ export const contextDir = async (pathParts) => {
 export const contextRoot = async () => contextDir([]);
 
 /**
- * Whether the context directory was chosen with --context, rather than being
- * the default one under the home folder. The UI says so, because "which
+ * Whether the context directory was named with --context, rather than being
+ * the directory the command was run from. The UI says so, because "which
  * folder am I looking at" is a different question in each case.
  * @returns {boolean}
  */

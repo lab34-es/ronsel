@@ -184,6 +184,15 @@ npm test                 # jest
 npm run coverage:badge   # refresh .github/badges/coverage.svg
 ```
 
+There is no folder of the tool's in the home directory. Everything a run reads
+and writes lives in the *context*: the directory `--context` names, or the one
+the command was run from, which the CLI asks about before settling on it. An
+empty context is furnished with the bundled examples on first start; a
+directory with anything already in it is served exactly as it is, and nothing
+of ours is written into it. `npm run dev` therefore works in `.dev-context/`,
+a gitignored folder the script creates so development never seeds the
+repository itself.
+
 While working on a change, `npm run lint`, `npm run typecheck` and `npm test`
 are the fast local feedback loop (add the `--prefix frontend` equivalents when
 the UI changed). They are a convenience, not the gate: `ci.yml` decides both

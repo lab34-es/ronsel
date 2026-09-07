@@ -4,8 +4,6 @@
 let ARGV: Record<string, any> = {};
 jest.mock('yargs-parser', () => () => ARGV);
 
-jest.mock('is-wsl', () => false);
-
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -72,44 +70,83 @@ describe('helpers/cli', () => {
   test('exposes whether stdout is a TTY', () => {
     expect(typeof cli.isInteractive === 'boolean' || cli.isInteractive === undefined).toBe(true);
   });
+
+  describe('confirm', () => {
+    const readline = require('readline');
+
+    /** Answer the next question with `answer`, and report the question asked. */
+    const answering = (answer: string) => {
+      const asked: string[] = [];
+      const close = jest.fn();
+
+      jest.spyOn(readline, 'createInterface').mockReturnValue({
+        question: (text: string, callback: (value: string) => void) => {
+          asked.push(text);
+          callback(answer);
+        },
+        close
+      } as any);
+
+      return { asked, close };
+    };
+
+    test.each([['', true], ['y', true], ['Y', true], ['yes', true], ['n', false], ['no', false], ['nope', false]])(
+      'answering %p means %p', async (answer, expected) => {
+        answering(answer as string);
+        await expect(cli.confirm('Use it?')).resolves.toBe(expected);
+      }
+    );
+
+    test('asks the question, says the default and closes the interface', async () => {
+      const { asked, close } = answering('');
+
+      await cli.confirm('Use it?');
+
+      expect(asked).toEqual(['Use it? [Y/n] ']);
+      expect(close).toHaveBeenCalled();
+    });
+  });
 });
 
 describe('helpers/paths', () => {
-  const HOME = os.homedir();
-
   beforeEach(() => {
     ARGV = {};
     jest.resetModules();
   });
 
-  test('defaults to ~/ronsel', async () => {
+  test('defaults to the directory the command was run from', async () => {
     const paths = require('../../src/helpers/paths');
-    expect(await paths.contextDir()).toBe(path.join(HOME, 'ronsel'));
+    expect(await paths.contextDir()).toBe(process.cwd());
   });
 
-  test('keeps using ~/lab34-flows, from before the rename, while there is no ~/ronsel', async () => {
-    const home = fs.mkdtempSync(path.join(os.tmpdir(), 'home-'));
-    const spy = jest.spyOn(os, 'homedir').mockReturnValue(home);
-    try {
-      jest.resetModules();
-      const paths = require('../../src/helpers/paths');
-      expect(await paths.contextDir()).toBe(path.join(home, 'ronsel'));
+  test('useContext is what the CLI settled on, once it asked', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ctx-'));
+    const paths = require('../../src/helpers/paths');
 
-      fs.mkdirSync(path.join(home, 'lab34-flows'));
-      expect(await paths.contextDir()).toBe(path.join(home, 'lab34-flows'));
+    paths.useContext(dir);
 
-      fs.mkdirSync(path.join(home, 'ronsel'));
-      expect(await paths.contextDir()).toBe(path.join(home, 'ronsel'));
-    } finally {
-      spy.mockRestore();
-      fs.rmSync(home, { recursive: true, force: true });
-    }
+    expect(await paths.contextDir(['flows'])).toBe(path.join(dir, 'flows'));
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  test('--context wins over anything the CLI settled on', async () => {
+    const chosen = fs.mkdtempSync(path.join(os.tmpdir(), 'ctx-'));
+    const given = fs.mkdtempSync(path.join(os.tmpdir(), 'ctx-'));
+    ARGV = { context: given };
+    jest.resetModules();
+    const paths = require('../../src/helpers/paths');
+
+    paths.useContext(chosen);
+
+    expect(await paths.contextDir([])).toBe(given);
+    fs.rmSync(chosen, { recursive: true, force: true });
+    fs.rmSync(given, { recursive: true, force: true });
   });
 
   test('appends the requested path parts', async () => {
     const paths = require('../../src/helpers/paths');
     expect(await paths.contextDir(['flows', 'a.md']))
-      .toBe(path.join(HOME, 'ronsel', 'flows', 'a.md'));
+      .toBe(path.join(process.cwd(), 'flows', 'a.md'));
   });
 
   test('an absolute --context is used as the base', async () => {
@@ -147,7 +184,7 @@ describe('helpers/paths', () => {
 
   test('contextRoot is the context directory itself', async () => {
     const paths = require('../../src/helpers/paths');
-    expect(await paths.contextRoot()).toBe(path.join(HOME, 'ronsel'));
+    expect(await paths.contextRoot()).toBe(process.cwd());
     expect(paths.hasCustomContext()).toBe(false);
   });
 

@@ -19,6 +19,10 @@ tsconfig.tsbuildinfo
 # Claude Code local state (was covered by the previous ".c**" pattern)
 .claude/
 
+# The context `npm run dev` works in: an empty folder the tool furnishes with
+# its own examples on first start, so development never writes into the repo
+.dev-context/**
+
 tester-darwin-arm64/**
 flows-tester-darwin-arm64/**
 tester-win32-x64/**

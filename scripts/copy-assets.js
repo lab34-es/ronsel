@@ -11,7 +11,7 @@
  * `__dirname/../defaults`, which is dist/defaults once compiled.
  *
  * frontend/dist is the compiled UI. Only `dist` is published, so the bundle has
- * to live inside it for `ronsel --server` to serve a UI from a global
+ * to live inside it for `ronsel` to serve a UI from a global
  * install; api/index resolves it at `__dirname/../frontend`. It is optional
  * here because `npm run build` alone does not build the frontend -- publishing
  * goes through prepublishOnly, which does.

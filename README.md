@@ -116,7 +116,8 @@ walkthrough.
 ## Usage
 
 ```bash
-ronsel --server                                  # web UI on http://localhost:3001
+ronsel                                           # web UI on http://localhost:3001
+ronsel --context ~/my-flows                      # ... on another folder
 ronsel --file flows/my-flow.md --env production  # run a flow headlessly
 ronsel --view smoke-tests --env production       # run every flow a saved view matches
 ronsel --import-env env.yaml --view smoke --env uat  # load the env variables, then run
@@ -124,6 +125,13 @@ ronsel --capabilities                            # list available applications a
 ronsel --version                                 # print the installed version
 ronsel --help
 ```
+
+Told nothing to run, `ronsel` starts the web UI. Everything it reads and
+writes — flows, applications, environments, test runs — lives in one folder,
+the *context*: either the one `--context` names, or the directory the command
+was run from, which it asks about before settling on it. An empty directory is
+furnished with the example flows and applications on that first start; a
+directory with anything already in it is served exactly as it is.
 
 A `--view` is an scopped list of flows that matches criterias you specify via the UI.
 You can get the exact cli command to run scopped filters via the UI.

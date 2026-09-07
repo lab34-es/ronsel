@@ -72,6 +72,37 @@ describe('bootstrap.ensureDefaults', () => {
     expect(fs.readFileSync(path.join(dest, '01-welcome.md'), 'utf8')).toBe('# mine');
   });
 
+  test('a folder that already holds something is served as it is', async () => {
+    fs.writeFileSync(path.join(ctx, 'notes.txt'), 'mine');
+
+    await bootstrap.ensureDefaults();
+
+    expect(fs.existsSync(path.join(ctx, 'applications'))).toBe(false);
+    expect(fs.existsSync(path.join(ctx, 'flows'))).toBe(false);
+    expect(fs.existsSync(path.join(ctx, '.examples-seeded'))).toBe(false);
+    expect(fs.existsSync(path.join(ctx, 'tsconfig.json'))).toBe(false);
+  });
+
+  test('a context that is already there keeps its tsconfig up to date', async () => {
+    fs.mkdirSync(path.join(ctx, 'flows'));
+
+    await bootstrap.ensureDefaults();
+
+    // No examples: they only ever go into an empty folder
+    expect(fs.existsSync(path.join(ctx, '.examples-seeded'))).toBe(false);
+    expect(fs.existsSync(path.join(ctx, 'applications'))).toBe(false);
+    // But the editor support follows the installation
+    expect(fs.existsSync(path.join(ctx, 'tsconfig.json'))).toBe(true);
+  });
+
+  test('a folder holding only .DS_Store still counts as empty', async () => {
+    fs.writeFileSync(path.join(ctx, '.DS_Store'), '');
+
+    await bootstrap.ensureDefaults();
+
+    expect(fs.existsSync(path.join(ctx, 'flows', 'examples', '01-welcome.md'))).toBe(true);
+  });
+
   test('seeding never prevents the tool from starting', async () => {
     (paths.contextDir as jest.Mock).mockRejectedValue(new Error('no context'));
 
@@ -111,6 +142,14 @@ describe('bootstrap.ensureTypeScriptConfig', () => {
   test('is created by ensureDefaults too', async () => {
     await bootstrap.ensureDefaults();
     expect(fs.existsSync(path.join(ctx, 'tsconfig.json'))).toBe(true);
+  });
+
+  test('is never dropped into a folder that is not a context of ours', async () => {
+    fs.writeFileSync(path.join(ctx, 'README.md'), '# somebody else\'s project');
+
+    await bootstrap.ensureTypeScriptConfig();
+
+    expect(fs.existsSync(path.join(ctx, 'tsconfig.json'))).toBe(false);
   });
 
   test('refreshes a stale generated file, so the paths follow the install', async () => {

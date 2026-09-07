@@ -1,3 +1,5 @@
+import readline from 'readline';
+
 export const logo = (append) => {
   console.log('                          _ ');
   console.log(' _ __ ___  _ __  ___  ___| |');
@@ -55,3 +57,25 @@ export const wisdom = () => {
 
 const isInteractive = process.stdout.isTTY;
 export { isInteractive };
+
+/**
+ * Ask a yes/no question on the terminal, defaulting to yes.
+ *
+ * Only ever called when there is somebody there to answer -- see
+ * `isInteractive`. A run that is piped, or started by a pipeline, must never
+ * stop on a question nobody will read.
+ *
+ * @param {string} question - Asked as it is, with " [Y/n] " appended
+ * @returns {Promise<boolean>} What the answer amounts to
+ */
+export const confirm = (question: string): Promise<boolean> => {
+  return new Promise(resolve => {
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+
+    rl.question(`${question} [Y/n] `, (answer: string) => {
+      rl.close();
+      const said = String(answer || '').trim().toLowerCase();
+      resolve(said === '' || said === 'y' || said === 'yes');
+    });
+  });
+};
