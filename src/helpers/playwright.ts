@@ -10,6 +10,7 @@ const debug = createDebug('ronsel:helpers:playwright');
 import { chromium, firefox, webkit, devices } from 'playwright';
 
 import * as replacer from './replacer';
+import * as browsers from './browsers';
 
 const ALLOWED_METHODS = [
   'goto',
@@ -123,9 +124,14 @@ const sessionName = (ctx, flow, stepParams, options) => {
 
 /**
  * `npm install` brings in playwright itself, but not the browsers it drives:
- * those are downloaded once, by hand, with `npx playwright install`. Until
- * that is done every launch fails, so the error says what to run instead of
- * leaving playwright's own message to be read as a broken flow.
+ * those are downloaded once, with `npx playwright install` -- which is what
+ * `ronsel start` offers to do, and what this says to run when nobody took it up
+ * on the offer. Until it has happened every launch fails, so the error says
+ * what to run instead of leaving playwright's own message to be read as a
+ * broken flow.
+ *
+ * The sentence itself comes from the browsers helper, so the flow that fails
+ * and the question at start say the same thing in the same words.
  */
 const isMissingBrowserError = (ex) => {
   const message = String((ex && ex.message) || ex || '');
@@ -135,9 +141,9 @@ const isMissingBrowserError = (ex) => {
 };
 
 const missingBrowserError = (browserType, ex) => new Error([
-  `The ${browserType} browser is not installed. Playwright drives real browsers,`,
-  `and they are downloaded separately: run "npx playwright install ${browserType}"`,
-  '(or "npx playwright install" for all of them) and run the flow again.'
+  `${browsers.notInstalled([browserType])}:`,
+  `run "${browsers.command([browserType])}"`,
+  `(or "${browsers.command(browsers.BROWSERS)}" for all of them) and run the flow again.`
 ].join(' ') + `\n\n${(ex && ex.message) || ex}`);
 
 /**

@@ -44,6 +44,9 @@ jest.mock('../src/helpers/project', () => ({
   isInstalled: jest.fn(() => true),
   install: jest.fn().mockResolvedValue(undefined)
 }));
+jest.mock('../src/helpers/browsers', () => ({
+  ensure: jest.fn().mockResolvedValue({ status: 'ready', browsers: [] })
+}));
 jest.mock('../src/helpers/remote/config', () => ({
   agentIdentity: jest.fn(),
   brokerSettings: jest.fn()
@@ -76,6 +79,7 @@ import * as testRuns from '../src/helpers/testRuns';
 import * as bases from '../src/helpers/bases';
 import * as envTransfer from '../src/helpers/envTransfer';
 import * as project from '../src/helpers/project';
+import * as browsers from '../src/helpers/browsers';
 import * as api from '../src/api';
 import * as remoteConfig from '../src/helpers/remote/config';
 import * as remoteBroker from '../src/helpers/remote/broker';
@@ -105,6 +109,10 @@ beforeEach(() => {
   });
   (project.ensureGitignore as jest.Mock).mockReturnValue([]);
   (project.isInstalled as jest.Mock).mockReturnValue(true);
+  // clearAllMocks forgets the calls, not the implementations: a case that made
+  // one of these fail would otherwise make every case after it fail too
+  (project.install as jest.Mock).mockResolvedValue(undefined);
+  (browsers.ensure as jest.Mock).mockResolvedValue({ status: 'ready', browsers: [] });
   (paths.contextDir as jest.Mock).mockImplementation(async (p: string) => `/ctx/${p}`);
   (applications.loadAll as jest.Mock).mockResolvedValue(undefined);
   (flows.listCapabilities as jest.Mock).mockResolvedValue(undefined);
@@ -316,6 +324,35 @@ describe('cli start', () => {
     expect(errored()).toContain('npm run ronsel');
     expect(api.start).not.toHaveBeenCalled();
     expect(process.exit).toHaveBeenCalledWith(1);
+  });
+
+  test('the playwright browsers are looked for, with nothing said about them', async () => {
+    ARGV = { _: ['start'] };
+
+    await runCli();
+
+    expect(browsers.ensure).toHaveBeenCalledWith({ install: undefined });
+    expect(api.start).toHaveBeenCalled();
+  });
+
+  test('--install-browsers and --no-install-browsers answer before the question', async () => {
+    ARGV = { _: ['start'], 'install-browsers': 'all' };
+    await runCli();
+    expect(browsers.ensure).toHaveBeenCalledWith({ install: 'all' });
+
+    ARGV = { _: ['start'], installBrowsers: false };
+    await runCli();
+    expect(browsers.ensure).toHaveBeenLastCalledWith({ install: false });
+  });
+
+  test('a browser check that goes wrong never keeps the UI from starting', async () => {
+    ARGV = { _: ['start'] };
+    (browsers.ensure as jest.Mock).mockRejectedValue(new Error('no idea'));
+
+    await runCli();
+
+    expect((console.warn as jest.Mock).mock.calls.join(' ')).toContain('Skipping the browser check: no idea');
+    expect(api.start).toHaveBeenCalled();
   });
 
   test('any other word is not a command', async () => {

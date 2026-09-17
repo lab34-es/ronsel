@@ -9,7 +9,7 @@ import * as applications from './helpers/applications';
  * A command-line interface for running Markdown flow definitions.
  * 
  * Usage:
- *   node cli.js start [--context <dir>] [--no-install]
+ *   node cli.js start [--context <dir>] [--no-install] [--install-browsers]
  *   node cli.js [--context <dir>]
  *   node cli.js --file <path-to-flow-file> --env <environment> [--debug] [--help]
  *   node cli.js --view <view> --env <environment> [--folder <folder>]
@@ -34,6 +34,12 @@ import * as applications from './helpers/applications';
  *   --context      Context directory. Without it the directory the command
  *                  was run from is used, after asking
  *   --no-install   With `start`, write the files but do not run npm install
+ *   --install-browsers
+ *                  With `start`, download the browsers playwright drives
+ *                  without asking. A value picks them: `all`, or a comma
+ *                  separated list
+ *   --no-install-browsers
+ *                  Do not download them, and do not ask
  *   --import-env   Path of a YAML export of environment variables: its values
  *                  are written into the context's env files before anything
  *                  runs
@@ -78,6 +84,7 @@ import * as testRuns from './helpers/testRuns';
 import * as bases from './helpers/bases';
 import * as envTransfer from './helpers/envTransfer';
 import * as project from './helpers/project';
+import * as browsers from './helpers/browsers';
 
 /**
  * Print error message and exit with error code
@@ -97,7 +104,7 @@ function showHelp() {
 Ronsel CLI Tool v${packageJson.version}
 
 Usage:
-  ronsel start [--context <context>] [--no-install]
+  ronsel start [--context <context>] [--no-install] [--install-browsers]
   ronsel [--context <context>]
   ronsel --file <path-to-flow-file> --env <environment> [--debug] [--help]
   ronsel --view <view> --env <environment> [--folder <folder>]
@@ -154,6 +161,19 @@ Options:
                   FLOWS_BROKER_USERNAME and FLOWS_BROKER_PASSWORD work too
   --no-install    With "start", write the files and skip the npm install --
                   useful when the folder is installed by something else
+  --install-browsers
+                  With "start", download the browsers playwright drives
+                  without asking first. They are not part of npm install, and
+                  the browser examples need them. On its own it downloads
+                  chromium, which is what the examples use; "all" downloads
+                  the three, and a comma separated list (firefox,webkit) names
+                  them. The download runs in the background, writing to
+                  logs/playwright-install.log in the context, and the UI starts
+                  without waiting for it. Pass it again to undo a "no" that was
+                  remembered from an earlier start
+  --no-install-browsers
+                  Do not download them and do not ask. Just for this run:
+                  answering "no" to the question is what gets remembered
   --debug         Print debug information including environment variables
   --version, -v   Print the installed version and exit
   --help          Show this help message
@@ -164,6 +184,8 @@ keys are configured there, under Settings.
 Examples:
   ronsel start
   ronsel start --context my/new/folder
+  ronsel start --install-browsers
+  ronsel start --install-browsers all
   ronsel
   ronsel --context my/context/folder
   ronsel --context my/context/folder --file flows/my-flow.md --env production
@@ -234,6 +256,12 @@ function parseArguments() {
     command: positional[0] || null,
     // yargs-parser reads `--no-install` as install: false
     install: argv.install !== false,
+    // The same, for the browsers -- except that this one has three answers:
+    // yes, no, and nothing said, which is the one that asks. A value names the
+    // browsers to download. Both spellings are read, as above
+    installBrowsers: argv.installBrowsers === undefined
+      ? argv['install-browsers']
+      : argv.installBrowsers,
     file: argv.file || null,
     // `--view` on its own means "the first view of views.yaml"
     view: argv.view === undefined ? null : (typeof argv.view === 'string' ? argv.view : ''),
@@ -522,6 +550,16 @@ async function startProject(args) {
   }
 
   console.log('');
+
+  // The browser examples drive a real browser, and playwright's browsers are a
+  // download of their own. This looks for them, offers to fetch them and
+  // leaves that running in the background: the UI is not kept waiting for a
+  // few hundred megabytes, and a folder of HTTP flows never needs them at all.
+  //
+  // The catch is belt and braces -- `ensure` is written never to throw -- and
+  // a UI that did not start over a browser check would be a poor trade
+  await browsers.ensure({ install: args.installBrowsers })
+    .catch(error => console.warn(`Skipping the browser check: ${error.message}`));
 
   await startServer();
 }

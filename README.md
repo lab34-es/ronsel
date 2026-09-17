@@ -117,13 +117,16 @@ Nothing has to be installed globally. If you would rather have it on the PATH:
 npm install -g ronsel
 ```
 
-Browser automation needs one extra step: Playwright ships with the package but
-its browsers do not, so download them once before running a flow that drives a
-browser.
+Browser automation needs one extra download: Playwright ships with the package
+but the browsers it drives do not. `ronsel start` looks for them, offers to
+fetch them and does it in the background, so there is usually nothing to do
+here. To take the question out of it, or to do it by hand later:
 
 ```bash
-npx playwright install          # all three browsers
-npx playwright install chromium # or just the one you use
+ronsel start --install-browsers     # chromium, without asking
+ronsel start --install-browsers all # the three of them
+npx playwright install chromium     # or by hand, whenever
+npx playwright install              # ... all three
 ```
 
 See [Quick start](https://ronsel.lab34.es/docs/quick-start/) for the first-run
@@ -149,6 +152,14 @@ ronsel --help
 existing `package.json` keeps its formatting and every key it had, and the
 examples are seeded once and never restored. `--no-install` writes the files
 and leaves the install to somebody else.
+
+It also looks for Playwright's browsers, which are not part of `npm install`,
+and offers to download the one the examples use. The download runs in the
+background — the UI does not wait for it, and its output goes to
+`logs/playwright-install.log` in the context — and a "no" is remembered in
+`config/browsers.json` so the question is asked once. `--install-browsers`
+answers yes in advance (and undoes a remembered no), `--no-install-browsers`
+answers no for this run, and a run with nobody at the terminal is never asked.
 
 Told nothing to run, `ronsel` starts the web UI. Everything it reads and
 writes — flows, applications, environments, test runs — lives in one folder,

@@ -108,19 +108,19 @@ describe('ensureGitignore', () => {
   test('writes one when there is none', () => {
     expect(project.ensureGitignore(directory)).toEqual(['created .gitignore']);
     expect(fs.readFileSync(path.join(directory, '.gitignore'), 'utf8'))
-      .toBe('node_modules/\ntest-runs/\n');
+      .toBe('node_modules/\ntest-runs/\nlogs/\n');
   });
 
   test('only the missing lines are appended, and a file with no newline survives it', () => {
     fs.writeFileSync(path.join(directory, '.gitignore'), 'node_modules/');
 
-    expect(project.ensureGitignore(directory)).toEqual(['added test-runs/ to .gitignore']);
+    expect(project.ensureGitignore(directory)).toEqual(['added test-runs/, logs/ to .gitignore']);
     expect(fs.readFileSync(path.join(directory, '.gitignore'), 'utf8'))
-      .toBe('node_modules/\ntest-runs/\n');
+      .toBe('node_modules/\ntest-runs/\nlogs/\n');
   });
 
   test('nothing is written when everything is already ignored', () => {
-    fs.writeFileSync(path.join(directory, '.gitignore'), 'test-runs/\nnode_modules/\n');
+    fs.writeFileSync(path.join(directory, '.gitignore'), 'logs/\ntest-runs/\nnode_modules/\n');
 
     expect(project.ensureGitignore(directory)).toEqual([]);
   });
