@@ -58,7 +58,13 @@ jest.mock('../src/helpers/remote/terminal', () => ({
   describe: jest.fn((event) => (event === 'remote:job' ? '  agent: line' : null)),
   prompt: jest.fn()
 }));
-jest.mock('../src/api', () => ({ start: jest.fn().mockResolvedValue(undefined) }));
+// The API picks its own port, so the URL is whatever it hands back
+jest.mock('../src/api', () => ({ start: jest.fn().mockResolvedValue('http://127.0.0.1:3457') }));
+// No test run opens a browser; whether one would be is decided here
+jest.mock('../src/helpers/browser', () => ({
+  wanted: jest.fn(() => true),
+  open: jest.fn(() => true)
+}));
 
 const spawn = jest.fn();
 jest.mock('child_process', () => ({ ...jest.requireActual('child_process'), spawn: (...a: any[]) => spawn(...a) }));
@@ -77,6 +83,7 @@ import * as bases from '../src/helpers/bases';
 import * as envTransfer from '../src/helpers/envTransfer';
 import * as project from '../src/helpers/project';
 import * as api from '../src/api';
+import * as browser from '../src/helpers/browser';
 import * as remoteConfig from '../src/helpers/remote/config';
 import * as remoteBroker from '../src/helpers/remote/broker';
 import * as remoteAgent from '../src/helpers/remote/agent';
@@ -88,6 +95,15 @@ const runCli = async () => {
   jest.isolateModules(() => { require('../src/cli'); });
   await new Promise(resolve => setImmediate(resolve));
 };
+
+/** The flow document every case runs, when a case runs one at all. */
+const FLOW = '# t\n\n```step\napplication: a\nmethod: b\n```\n';
+
+// Captured before anything spies on it. Only the flow document is faked
+// below: a blanket mock also answers the reads jest itself makes while it
+// transforms a module inside a test, which ends with its own tooling being
+// parsed as markdown.
+const readFileSync = fs.readFileSync;
 
 const logged = () => (console.log as jest.Mock).mock.calls.map(c => c.join(' ')).join('\n');
 const errored = () => (console.error as jest.Mock).mock.calls.map(c => c.join(' ')).join('\n');
@@ -109,7 +125,11 @@ beforeEach(() => {
   (applications.loadAll as jest.Mock).mockResolvedValue(undefined);
   (flows.listCapabilities as jest.Mock).mockResolvedValue(undefined);
   jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-  jest.spyOn(fs, 'readFileSync').mockReturnValue('# t\n\n```step\napplication: a\nmethod: b\n```\n' as any);
+  jest.spyOn(fs, 'readFileSync').mockImplementation(((file: any, ...rest: any[]) => (
+    typeof file === 'string' && /\.(md|markdown)$/i.test(file)
+      ? FLOW
+      : (readFileSync as any)(file, ...rest)
+  )) as any);
   (markdownFlows.toFlow as jest.Mock).mockReturnValue({ title: 't', steps: [] });
   // What the flow needs before it can run: every case but the one that
   // checks it has it
@@ -210,6 +230,34 @@ describe('cli with nothing to run', () => {
     await runCli();
 
     expect(spawn).not.toHaveBeenCalled();
+  });
+
+  test('opens the browser on the URL the API settled on, not on a guess', async () => {
+    ARGV = {};
+
+    await runCli();
+
+    expect(browser.wanted).toHaveBeenCalledWith({ open: true });
+    expect(browser.open).toHaveBeenCalledWith('http://127.0.0.1:3457');
+  });
+
+  test('--no-open starts the UI and leaves the browser alone', async () => {
+    ARGV = { open: false };
+    (browser.wanted as jest.Mock).mockReturnValueOnce(false);
+
+    await runCli();
+
+    expect(api.start).toHaveBeenCalled();
+    expect(browser.wanted).toHaveBeenCalledWith({ open: false });
+    expect(browser.open).not.toHaveBeenCalled();
+  });
+
+  test('--port and --host are handed to the API as they were written', async () => {
+    ARGV = { port: '4000', host: true };
+
+    await runCli();
+
+    expect(api.start).toHaveBeenCalledWith({ port: '4000', host: true });
   });
 });
 

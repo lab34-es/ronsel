@@ -31,22 +31,30 @@ describe('helpers/shell', () => {
 describe('helpers/io', () => {
   const io = require('../../src/helpers/io');
 
-  test('only the tool\'s own origins are allowed', () => {
-    expect(io.ALLOWED_ORIGINS).toEqual([
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://127.0.0.1:3000',
-      'http://127.0.0.1:3001'
-    ]);
+  test('builds a socket.io server restricted to the origins it is given', () => {
+    const http = require('http');
+    const server = http.createServer();
+    const instance = io.io(server, ['http://127.0.0.1:3457']);
+
+    expect(instance).toBeDefined();
+    expect(typeof instance.emit).toBe('function');
+    expect(instance.engine.opts.cors.origin).toEqual(['http://127.0.0.1:3457']);
+    instance.close();
   });
 
-  test('builds a socket.io server restricted to those origins', () => {
+  test('told no origins, only the tool\'s own defaults are allowed', () => {
     const http = require('http');
     const server = http.createServer();
     const instance = io.io(server);
 
-    expect(instance).toBeDefined();
-    expect(typeof instance.emit).toBe('function');
+    // The address the API settles on is what really fills this in: see
+    // helpers/net.allowedOrigins, and tests/api/net.test.ts
+    expect(instance.engine.opts.cors.origin).toEqual([
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'http://localhost:3001',
+      'http://127.0.0.1:3001'
+    ]);
     instance.close();
   });
 });
