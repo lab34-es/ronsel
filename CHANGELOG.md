@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/lab34-es/ronsel/compare/v2.0.0...v2.1.0) (2026-09-20)
+
+
+### Features
+
+* choose a free port, listen on loopback and open the browser ([#62](https://github.com/lab34-es/ronsel/issues/62)) ([55bcb41](https://github.com/lab34-es/ronsel/commit/55bcb4150a228a6abdd6fb6983521f8428e2cc03))
+
 ## [2.0.0](https://github.com/lab34-es/ronsel/compare/v1.10.0...v2.0.0) (2026-09-07)
 
 
