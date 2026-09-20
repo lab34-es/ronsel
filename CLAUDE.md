@@ -193,6 +193,25 @@ of ours is written into it. `npm run dev` therefore works in `.dev-context/`,
 a gitignored folder the script creates so development never seeds the
 repository itself.
 
+### The address is chosen at start, never written down
+
+No port is a constant any more. `helpers/net` picks the first free one from
+3001 up (`--port` or `PORT` move the starting point), builds the CORS and
+socket origins from what it settled on, and `api.start` returns the URL so the
+CLI prints it -- one copyable line, always -- and opens the browser on it
+(`helpers/browser`, which shells out to `open`, `start` or `xdg-open`, and is
+injectable so tests launch nothing). It listens on `127.0.0.1`: this API has
+no authentication and serves the context's env values, so exposing it is
+`--host`'s job, and that prints a warning. Nothing of this reaches the bundle
+-- `frontend/src/services/api.ts` and `socket.ts` use relative URLs, so the UI
+follows whatever port served it. Keep it that way.
+
+The one place a port is still fixed is the Vite dev proxy, and only for
+`npm run dev`: `frontend/vite.config.ts` reads `PORT` with 3001 as its
+default, the same variable the API reads, so `PORT=3005 npm run dev` moves
+both. If the API had to move because its port was busy, restart `npm run dev`
+with `PORT` naming a free one rather than teaching the proxy to guess.
+
 While working on a change, `npm run lint`, `npm run typecheck` and `npm test`
 are the fast local feedback loop (add the `--prefix frontend` equivalents when
 the UI changed). They are a convenience, not the gate: `ci.yml` decides both
