@@ -33,7 +33,10 @@ const SCRIPT_NAME = 'ronsel';
 const IGNORED = [
   'node_modules/',
   // Every run leaves a copy of itself here: results, not sources
-  'test-runs/'
+  'test-runs/',
+  // What a background job left behind on this machine -- the browser download
+  // writes its output here
+  'logs/'
 ];
 
 /** Whether the folder's own name can be an npm package name, and what it is. */
