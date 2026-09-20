@@ -136,8 +136,11 @@ walkthrough.
 
 ```bash
 ronsel start                                     # make this folder a ronsel project, and start
-ronsel                                           # web UI on http://localhost:3001
+ronsel                                           # web UI, and the browser opened on it
 ronsel --context ~/my-flows                      # ... on another folder
+ronsel --port 4000                               # start looking for a free port there
+ronsel --host                                    # let the rest of the network in (read on)
+ronsel --no-open                                 # start it, leave the browser alone
 ronsel --file flows/my-flow.md --env production  # run a flow headlessly
 ronsel --view smoke-tests --env production       # run every flow a saved view matches
 ronsel --import-env env.yaml --view smoke --env uat  # load the env variables, then run
@@ -167,6 +170,32 @@ the *context*: either the one `--context` names, or the directory the command
 was run from, which it asks about before settling on it. An empty directory is
 furnished with the example flows and applications on that first start; a
 directory with anything already in it is served exactly as it is.
+
+#### Where it listens, and what it opens
+
+The UI is served on the first free port from 3001 up, so a second context in
+another terminal starts next to the first one instead of failing. `--port` (or
+`PORT`) moves the starting point; the port it settles on is printed as one
+copyable line, always — it is never chosen in silence. Nothing of that is in
+the bundle: the UI talks to whatever origin served it, so the port can move
+freely.
+
+The default browser is opened on that URL, unless `--no-open` says otherwise,
+or `CI` is set, or nobody is watching the terminal.
+
+It listens on `127.0.0.1`, so only this machine can reach it. That is not only
+tidiness: **this API has no authentication of any kind**, and routes of it
+serve the values of the context's env files. `--host` opens it to the network
+on purpose — bare for every interface, or with an address for one of them —
+and says so at start. `HOST` does the same.
+
+```bash
+ronsel --port 4000        # 4000, or the next free one after it
+PORT=4000 ronsel          # the same thing
+ronsel --host             # every interface, with a warning
+ronsel --host 192.168.1.20  # that one
+ronsel --no-open          # no browser
+```
 
 A `--view` is an scopped list of flows that matches criterias you specify via the UI.
 You can get the exact cli command to run scopped filters via the UI.
@@ -243,6 +272,7 @@ npm run install:frontend # web UI
 
 npm run dev              # API on :3001 + web UI on :3000, both live-reloading
                          # open http://localhost:3000 (:3001 redirects there)
+                         # PORT=3005 npm run dev moves the API and the proxy
 npm run dev:api          # API only, restarted on change (tsx, no build step)
 npm run frontend         # web UI only, Vite dev server with HMR on :3000
 

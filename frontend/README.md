@@ -33,7 +33,13 @@ VITE_API_URL=http://localhost:5678
 
 ## Development
 
-The frontend runs on port 3000 and proxies API requests to the backend on port 3001.
+The frontend runs on port 3000 and proxies API requests to the backend, which
+is on port 3001 unless `PORT` says otherwise -- the API reads the same
+variable, so `PORT=3005 npm run dev` from the root moves both.
+
+The built bundle has no port in it at all: it calls the origin that served it
+(`src/services/api.ts` and `src/services/socket.ts`), which is how the API can
+pick a free port at start and still be found.
 
 ### Available Scripts
 

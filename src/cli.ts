@@ -10,7 +10,7 @@ import * as applications from './helpers/applications';
  * 
  * Usage:
  *   node cli.js start [--context <dir>] [--no-install] [--install-browsers]
- *   node cli.js [--context <dir>]
+ *   node cli.js [--context <dir>] [--port <port>] [--host [address]] [--no-open]
  *   node cli.js --file <path-to-flow-file> --env <environment> [--debug] [--help]
  *   node cli.js --view <view> --env <environment> [--folder <folder>]
  *   node cli.js --import-env <path-to-yaml> [--view <view> --env <environment>]
@@ -33,6 +33,12 @@ import * as applications from './helpers/applications';
  *   --folder       Folder of the flows tree the view is scoped to
  *   --context      Context directory. Without it the directory the command
  *                  was run from is used, after asking
+ *   --port         Port to start looking from for the UI (default 3001, or
+ *                  PORT). Busy, the next free one is used
+ *   --host         Address to listen on (default 127.0.0.1, or HOST). On its
+ *                  own it means every interface, which exposes an API that
+ *                  has no authentication
+ *   --no-open      Do not open the browser on the UI
  *   --no-install   With `start`, write the files but do not run npm install
  *   --install-browsers
  *                  With `start`, download the browsers playwright drives
@@ -85,6 +91,7 @@ import * as bases from './helpers/bases';
 import * as envTransfer from './helpers/envTransfer';
 import * as project from './helpers/project';
 import * as browsers from './helpers/browsers';
+import * as browser from './helpers/browser';
 
 /**
  * Print error message and exit with error code
@@ -105,7 +112,7 @@ Ronsel CLI Tool v${packageJson.version}
 
 Usage:
   ronsel start [--context <context>] [--no-install] [--install-browsers]
-  ronsel [--context <context>]
+  ronsel [--context <context>] [--port <port>] [--host [address]] [--no-open]
   ronsel --file <path-to-flow-file> --env <environment> [--debug] [--help]
   ronsel --view <view> --env <environment> [--folder <folder>]
   ronsel --import-env <path-to-yaml> [--view <view> --env <environment>]
@@ -148,6 +155,16 @@ Options:
                   directory the command was run from is used, after asking --
                   and if that directory is empty, it is furnished with the
                   example flows and applications
+  --port          Where the UI listens. A starting point, not a requirement:
+                  3001 by default (or PORT), and if that one is taken the next
+                  free port is used. Whichever it ends up on is printed
+  --host          The address the UI listens on. 127.0.0.1 by default (or
+                  HOST), so only this machine can reach it -- this API has no
+                  authentication and serves the values of the context's env
+                  files. On its own, --host listens on every interface; given
+                  an address, on that one. Either way it says so at start
+  --no-open       Do not open the browser. It is not opened anyway when
+                  nobody is watching the terminal, or when CI is set
   --agent         Run as an agent: connect to the MQTT broker under
                   --agent-id and run, in this context, the flows other
                   machines send. The agent's public key is printed at start
@@ -188,6 +205,9 @@ Examples:
   ronsel start --install-browsers all
   ronsel
   ronsel --context my/context/folder
+  ronsel --port 4000
+  ronsel --host --port 8080
+  ronsel --no-open
   ronsel --context my/context/folder --file flows/my-flow.md --env production
   ronsel --context my/context/folder --view all-flows --env production
   ronsel --context my/context/folder --view smoke --folder payments --env staging
@@ -281,6 +301,13 @@ function parseArguments() {
     password: typeof argv.password === 'string' ? argv.password : null,
     env: argv.env || null,
     context: argv.context || null,
+    // Where the UI listens, and whether a browser is opened on it. The port
+    // and the host are handed to the API as they were written -- it is the
+    // one that knows what PORT, HOST and a bare --host mean -- and
+    // yargs-parser reads `--no-open` as open: false
+    port: argv.port,
+    host: argv.host,
+    open: argv.open !== false,
     debug: argv.debug || false,
     help: argv.help || false,
     // Both spellings print the version: --version is what people type, -v is
@@ -452,12 +479,26 @@ async function importEnvironment({ file, dryRun }) {
  * has to boot the API that serves it. Rebuilding from here would need the
  * project sources and a working directory that has them, neither of which an
  * installed copy of the tool can count on.
+ *
+ * The port is not known in advance -- 3001 is only where the API starts
+ * looking -- so the URL it settles on comes back from `start` and is what
+ * gets opened. Nobody here guesses a port.
+ *
+ * @param {Object} [args] - { context, port, host, open }
  */
-async function startServer() {
+async function startServer(args: Record<string, any> = {}) {
   console.log('Starting server...');
 
+  // The context was settled before this ran -- `paths.useContext` -- so all
+  // the API is told here is where to listen
   const api = require('./api');
-  await api.start();
+  const url = await api.start({ port: args.port, host: args.host });
+
+  // Somebody who typed a command to look at their flows wants the browser on
+  // them. A pipeline does not, and neither does a terminal nobody is at
+  if (browser.wanted({ open: args.open })) {
+    browser.open(url);
+  }
 }
 
 /**
@@ -561,7 +602,7 @@ async function startProject(args) {
   await browsers.ensure({ install: args.installBrowsers })
     .catch(error => console.warn(`Skipping the browser check: ${error.message}`));
 
-  await startServer();
+  await startServer(args);
 }
 
 /**
@@ -877,7 +918,7 @@ async function main() {
   } else {
     // Nothing to run was named: whoever typed this came to look at the flows,
     // not to run one, so the UI is what they get
-    await startServer();
+    await startServer(args);
   }
 }
 
